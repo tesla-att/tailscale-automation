@@ -1,0 +1,20 @@
+{
+  "employees": [
+    {
+      "id": "emp001",
+      "name": "Nguyen Van Admin",
+      "email": "admin@company.com",
+      "department": "IT",
+      "location": "Hanoi",
+      "hostname": "admin-laptop",
+      "os": "windows",
+      "created_at": "2024-01-01T00:00:00Z",
+      "status": "active"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2024-01-01T00:00:00Z",
+    "total_employees": 1
+  }
+}

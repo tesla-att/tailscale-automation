@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailscale Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .status-online { color: #10b981; }
+        .status-offline { color: #ef4444; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-network-wired text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-bold">Tailscale Management System</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="user-info" class="text-sm"></span>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center">Login Required</h2>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Username</label>
+                    <input type="text" id="username" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="container mx-auto px-4 py-8 hidden">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <i class="fas fa-users text-blue-500 text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm text-gray-600">Total Employees</p>
+                        <p id="total-employees" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle status-online text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm text-gray-600">Online Devices</p>
+                        <p id="online-devices" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <i class="fas fa-times-circle status-offline text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm text-gray-600">Offline Devices</p>
+                        <p id="offline-devices" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <i class="fas fa-key text-yellow-500 text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm text-gray-600">Auth Keys</p>
+                        <p id="active-keys" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="border-b">
+                <nav class="flex space-x-8 px-6">
+                    <button class="tab-button active py-4 px-2 border-b-2 border-blue-500 text-blue-600" data-tab="employees">
+                        <i class="fas fa-users mr-2"></i>Employees
+                    </button>
+                    <button class="tab-button py-4 px-2 border-b-2 border-transparent hover:border-gray-300" data-tab="devices">
+                        <i class="fas fa-laptop mr-2"></i>Devices
+                    </button>
+                    <button class="tab-button py-4 px-2 border-b-2 border-transparent hover:border-gray-300" data-tab="deployment">
+                        <i class="fas fa-cloud-download-alt mr-2"></i>Deployment
+                    </button>
+                    <button class="tab-button py-4 px-2 border-b-2 border-transparent hover:border-gray-300" data-tab="monitoring">
+                        <i class="fas fa-chart-line mr-2"></i>Monitoring
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Employees Tab -->
+            <div id="employees-tab" class="tab-content p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Employee Management</h2>
+                    <button id="add-employee-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-plus mr-2"></i>Add Employee
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left">ID</th>
+                                <th class="px-4 py-3 text-left">Name</th>
+                                <th class="px-4 py-3 text-left">Department</th>
+                                <th class="px-4 py-3 text-left">Location</th>
+                                <th class="px-4 py-3 text-left">OS</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employees-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Devices Tab -->
+            <div id="devices-tab" class="tab-content p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Device Status</h2>
+                    <button id="refresh-devices" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+                
+                <div id="devices-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Deployment Tab -->
+            <div id="deployment-tab" class="tab-content p-6 hidden">
+                <h2 class="text-xl font-bold mb-6">Deployment Scripts</h2>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <h3 class="text-lg font-medium mb-4">Generate Deployment Script</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select id="deployment-employee" class="px-3 py-2 border rounded-lg">
+                            <option value="">Select Employee</option>
+                        </select>
+                        <select id="deployment-os" class="px-3 py-2 border rounded-lg">
+                            <option value="">Select OS</option>
+                            <option value="windows">Windows</option>
+                            <option value="macos">macOS</option>
+                            <option value="linux">Linux</option>
+                        </select>
+                        <button id="generate-script" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-download mr-2"></i>Generate & Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div class="flex">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 mr-3"></i>
+                        <div>
+                            <h3 class="text-lg font-medium text-yellow-800">Deployment Instructions</h3>
+                            <p class="text-yellow-700">
+                                1. Generate auth key for the employee first<br>
+                                2. Download the appropriate script for their OS<br>
+                                3. Send the script to the employee<br>
+                                4. Employee runs the script with admin privileges
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring Tab -->
+            <div id="monitoring-tab" class="tab-content p-6 hidden">
+                <h2 class="text-xl font-bold mb-6">System Monitoring</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white border rounded-lg p-4">
+                        <h3 class="text-lg font-medium mb-4">Connection Status</h3>
+                        <canvas id="status-chart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="bg-white border rounded-lg p-4">
+                        <h3 class="text-lg font-medium mb-4">Recent Activity</h3>
+                        <div id="activity-log" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div id="add-employee-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-6">Add New Employee</h2>
+            <form id="add-employee-form">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Employee ID</label>
+                        <input type="text" id="new-emp-id" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Name</label>
+                        <input type="text" id="new-emp-name" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="new-emp-email" class="w-full px-3 py-2 border rounded-lg" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Department</label>
+                        <input type="text" id="new-emp-dept" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Location</label>
+                        <input type="text" id="new-emp-location" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Hostname</label>
+                        <input type="text" id="new-emp-hostname" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">OS</label>
+                        <select id="new-emp-os" class="w-full px-3 py-2 border rounded-lg" required>
+                            <option value="">Select OS</option>
+                            <option value="windows">Windows</option>
+                            <option value="macos">macOS</option>
+                            <option value="linux">Linux</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-add-employee" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                        Add Employee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3000/api';
+        let authToken = localStorage.getItem('tailscale_token');
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+                },
+                ...options,
+            };
+
+            const response = await fetch(`${API_BASE}${endpoint}`, config);
+            
+            if (response.status === 401) {
+                showLogin();
+                return null;
+            }
+            
+            return response.json();
+        }
+
+        // Authentication
+        function showLogin() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+        }
+
+        function hideLogin() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                const data = await response.json();
+                if (data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('tailscale_token', authToken);
+                    document.getElementById('user-info').textContent = `Logged in as ${username}`;
+                    hideLogin();
+                    loadData();
+                } else {
+                    alert('Invalid credentials');
+                }
+            } catch (error) {
+                alert('Login failed');
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('tailscale_token');
+            authToken = null;
+            showLogin();
+        });
+
+        // Tab Navigation
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+                
+                // Update active tab
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+                    btn.classList.add('border-transparent');
+                });
+                button.classList.add('active', 'border-blue-500', 'text-blue-600');
+                button.classList.remove('border-transparent');
+                
+                // Show/hide content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+            });
+        });
+
+        // Load Data
+        async function loadData() {
+            await Promise.all([
+                loadEmployees(),
+                loadDevices(),
+                updateStats(),
+            ]);
+        }
+
+        async function loadEmployees() {
+            const employees = await apiCall('/employees');
+            if (!employees) return;
+
+            const tbody = document.getElementById('employees-table');
+            tbody.innerHTML = employees.map(emp => `
+                <tr class="border-t">
+                    <td class="px-4 py-3">${emp.id}</td>
+                    <td class="px-4 py-3">${emp.name}</td>
+                    <td class="px-4 py-3">${emp.department}</td>
+                    <td class="px-4 py-3">${emp.location}</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-block px-2 py-1 text-xs rounded-full ${getOSColor(emp.os)}">
+                            ${emp.os}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-block w-3 h-3 rounded-full bg-gray-400"></span>
+                        <span class="ml-2 text-sm">Unknown</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <button onclick="generateAuthKey('${emp.id}')" class="text-blue-500 hover:text-blue-700 mr-3">
+                            <i class="fas fa-key"></i> Auth Key
+                        </button>
+                        <button onclick="deployScript('${emp.id}')" class="text-green-500 hover:text-green-700">
+                            <i class="fas fa-download"></i> Deploy
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Populate deployment dropdown
+            const deploymentSelect = document.getElementById('deployment-employee');
+            deploymentSelect.innerHTML = '<option value="">Select Employee</option>' +
+                employees.map(emp => `<option value="${emp.id}">${emp.name} (${emp.id})</option>`).join('');
+        }
+
+        async function loadDevices() {
+            const devices = await apiCall('/devices');
+            if (!devices) return;
+
+            const grid = document.getElementById('devices-grid');
+            grid.innerHTML = devices.map(device => `
+                <div class="bg-white p-4 rounded-lg border">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-medium">${device.hostname}</h3>
+                        <span class="inline-block w-3 h-3 rounded-full ${device.online ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <div><strong>IP:</strong> ${device.addresses?.[0] || 'N/A'}</div>
+                        <div><strong>OS:</strong> ${device.os || 'Unknown'}</div>
+                        <div><strong>Last Seen:</strong> ${device.lastSeen ? new Date(device.lastSeen).toLocaleString() : 'Never'}</div>
+                        <div><strong>Status:</strong> 
+                            <span class="${device.online ? 'status-online' : 'status-offline'}">
+                                ${device.online ? 'Online' : 'Offline'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateStats() {
+            const [employees, devices] = await Promise.all([
+                apiCall('/employees'),
+                apiCall('/devices')
+            ]);
+
+            if (employees && devices) {
+                document.getElementById('total-employees').textContent = employees.length;
+                document.getElementById('online-devices').textContent = devices.filter(d => d.online).length;
+                document.getElementById('offline-devices').textContent = devices.filter(d => !d.online).length;
+                document.getElementById('active-keys').textContent = employees.length; // Simplified
+            }
+        }
+
+        // Helper Functions
+        function getOSColor(os) {
+            const colors = {
+                'windows': 'bg-blue-100 text-blue-800',
+                'macos': 'bg-gray-100 text-gray-800',
+                'linux': 'bg-green-100 text-green-800'
+            };
+            return colors[os] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Action Functions
+        async function generateAuthKey(employeeId) {
+            try {
+                const result = await apiCall(`/employees/${employeeId}/authkey`, { method: 'POST' });
+                if (result) {
+                    alert(`Auth key generated successfully for ${employeeId}`);
+                }
+            } catch (error) {
+                alert('Failed to generate auth key');
+            }
+        }
+
+        // Add Employee Modal
+        document.getElementById('add-employee-btn').addEventListener('click', () => {
+            document.getElementById('add-employee-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancel-add-employee').addEventListener('click', () => {
+            document.getElementById('add-employee-modal').classList.add('hidden');
+        });
+
+        document.getElementById('add-employee-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newEmployee = {
+                id: document.getElementById('new-emp-id').value,
+                name: document.getElementById('new-emp-name').value,
+                email: document.getElementById('new-emp-email').value,
+                department: document.getElementById('new-emp-dept').value,
+                location: document.getElementById('new-emp-location').value,
+                hostname: document.getElementById('new-emp-hostname').value,
+                os: document.getElementById('new-emp-os').value,
+            };
+
+            try {
+                const result = await apiCall('/employees', {
+                    method: 'POST',
+                    body: JSON.stringify(newEmployee),
+                });
+
+                if (result) {
+                    document.getElementById('add-employee-modal').classList.add('hidden');
+                    document.getElementById('add-employee-form').reset();
+                    loadEmployees();
+                    updateStats();
+                }
+            } catch (error) {
+                alert('Failed to add employee');
+            }
+        });
+
+        // Script Generation
+        document.getElementById('generate-script').addEventListener('click', async () => {
+            const employeeId = document.getElementById('deployment-employee').value;
+            const os = document.getElementById('deployment-os').value;
+
+            if (!employeeId || !os) {
+                alert('Please select both employee and OS');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/employees/${employeeId}/script/${os}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('Content-Disposition').split('filename=')[1].replace(/"/g, '');
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to generate script');
+                }
+            } catch (error) {
+                alert('Failed to download script');
+            }
+        });
+
+        // Refresh Devices
+        document.getElementById('refresh-devices').addEventListener('click', loadDevices);
+
+        // Initialize
+        if (authToken) {
+            hideLogin();
+            loadData();
+        } else {
+            showLogin();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (authToken) {
+                loadDevices();
+                updateStats();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
