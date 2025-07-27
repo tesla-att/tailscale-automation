@@ -307,3 +307,4 @@ echo "Tailscale installed and configured successfully!"`;
 app.listen(port, () => {
   logger.info(`Tailscale Manager API server running on port ${port}`);
 });
+

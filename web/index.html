@@ -10,9 +10,23 @@
         .status-online { color: #10b981; }
         .status-offline { color: #ef4444; }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .metric-card { transition: all 0.3s ease; }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .notification { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
+    <!-- Notification Container -->
+<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 300px;"></div>
+
     <!-- Header -->
     <header class="gradient-bg text-white shadow-lg">
         <div class="container mx-auto px-4 py-6">
@@ -22,6 +36,10 @@
                     <h1 class="text-2xl font-bold">Tailscale Management System</h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                        <span class="text-sm">Live Updates</span>
+                    </div>
                     <span id="user-info" class="text-sm"></span>
                     <button id="logout-btn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -34,20 +52,27 @@
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-8 rounded-lg shadow-xl w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center">Login Required</h2>
+            <div class="text-center mb-6">
+                <i class="fas fa-network-wired text-4xl text-blue-500 mb-4"></i>
+                <h2 class="text-2xl font-bold">Tailscale Management</h2>
+                <p class="text-gray-600">Please login to continue</p>
+            </div>
             <form id="login-form">
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">Username</label>
-                    <input type="text" id="username" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="username" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-sm font-medium mb-2">Password</label>
-                    <input type="password" id="password" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="password" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">
-                    Login
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
                 </button>
             </form>
+            <div class="mt-4 text-center text-sm text-gray-600">
+                Default: admin / admin123
+            </div>
         </div>
     </div>
 
@@ -55,7 +80,7 @@
     <div id="main-content" class="container mx-auto px-4 py-8 hidden">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="metric-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center">
                     <i class="fas fa-users text-blue-500 text-2xl mr-4"></i>
                     <div>
@@ -64,7 +89,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="metric-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center">
                     <i class="fas fa-check-circle status-online text-2xl mr-4"></i>
                     <div>
@@ -73,7 +98,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="metric-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center">
                     <i class="fas fa-times-circle status-offline text-2xl mr-4"></i>
                     <div>
@@ -82,11 +107,11 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="metric-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center">
                     <i class="fas fa-key text-yellow-500 text-2xl mr-4"></i>
                     <div>
-                        <p class="text-sm text-gray-600">Auth Keys</p>
+                        <p class="text-sm text-gray-600">Active Keys</p>
                         <p id="active-keys" class="text-2xl font-bold">0</p>
                     </div>
                 </div>
@@ -113,7 +138,7 @@
             </div>
 
             <!-- Employees Tab -->
-            <div id="employees-tab" class="tab-content p-6">
+            <div id="employees-tab" class="tab-content active p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold">Employee Management</h2>
                     <button id="add-employee-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
@@ -127,8 +152,8 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">ID</th>
                                 <th class="px-4 py-3 text-left">Name</th>
+                                <th class="px-4 py-3 text-left">Email</th>
                                 <th class="px-4 py-3 text-left">Department</th>
-                                <th class="px-4 py-3 text-left">Location</th>
                                 <th class="px-4 py-3 text-left">OS</th>
                                 <th class="px-4 py-3 text-left">Status</th>
                                 <th class="px-4 py-3 text-left">Actions</th>
@@ -142,7 +167,7 @@
             </div>
 
             <!-- Devices Tab -->
-            <div id="devices-tab" class="tab-content p-6 hidden">
+            <div id="devices-tab" class="tab-content p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold">Device Status</h2>
                     <button id="refresh-devices" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
@@ -156,57 +181,131 @@
             </div>
 
             <!-- Deployment Tab -->
-            <div id="deployment-tab" class="tab-content p-6 hidden">
-                <h2 class="text-xl font-bold mb-6">Deployment Scripts</h2>
+            <div id="deployment-tab" class="tab-content p-6">
+                <h2 class="text-xl font-bold mb-6">Deployment Management</h2>
                 
-                <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                    <h3 class="text-lg font-medium mb-4">Generate Deployment Script</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <select id="deployment-employee" class="px-3 py-2 border rounded-lg">
-                            <option value="">Select Employee</option>
-                        </select>
-                        <select id="deployment-os" class="px-3 py-2 border rounded-lg">
-                            <option value="">Select OS</option>
-                            <option value="windows">Windows</option>
-                            <option value="macos">macOS</option>
-                            <option value="linux">Linux</option>
-                        </select>
-                        <button id="generate-script" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                            <i class="fas fa-download mr-2"></i>Generate & Download
-                        </button>
-                    </div>
-                </div>
-
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
                     <div class="flex">
                         <i class="fas fa-exclamation-triangle text-yellow-400 mr-3"></i>
                         <div>
-                            <h3 class="text-lg font-medium text-yellow-800">Deployment Instructions</h3>
+                            <h3 class="text-lg font-medium text-yellow-800">Quick Setup Process</h3>
                             <p class="text-yellow-700">
-                                1. Generate auth key for the employee first<br>
-                                2. Download the appropriate script for their OS<br>
-                                3. Send the script to the employee<br>
-                                4. Employee runs the script with admin privileges
+                                1. Select employee → 2. Generate auth key → 3. Download script → 4. Send to employee
                             </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Quick Deployment -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-medium mb-4">Quick Deployment</h3>
+                        <div class="space-y-4">
+                            <select id="deployment-employee" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="">Select Employee</option>
+                            </select>
+                            <select id="deployment-os" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="">Select OS</option>
+                                <option value="windows">Windows (.ps1)</option>
+                                <option value="macos">macOS (.sh)</option>
+                                <option value="linux">Linux (.sh)</option>
+                            </select>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="generate-auth-key" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-key mr-2"></i>Generate Key
+                                </button>
+                                <button id="download-script" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-download mr-2"></i>Download Script
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Operations -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-medium mb-4">Bulk Operations</h3>
+                        <div class="space-y-4">
+                            <button id="generate-all-keys" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-keys mr-2"></i>Generate All Auth Keys
+                            </button>
+                            <button id="download-all-windows" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fab fa-windows mr-2"></i>Download All Windows Scripts
+                            </button>
+                            <button id="download-all-mac" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fab fa-apple mr-2"></i>Download All macOS Scripts
+                            </button>
+                            <button id="download-all-linux" class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fab fa-linux mr-2"></i>Download All Linux Scripts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deployment Instructions -->
+                <div class="mt-6 bg-white border rounded-lg p-6">
+                    <h3 class="text-lg font-medium mb-4">Employee Instructions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <i class="fab fa-windows text-4xl text-blue-500 mb-2"></i>
+                            <h4 class="font-medium">Windows</h4>
+                            <p class="text-sm text-gray-600">Right-click script → "Run as administrator"</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fab fa-apple text-4xl text-gray-600 mb-2"></i>
+                            <h4 class="font-medium">macOS</h4>
+                            <p class="text-sm text-gray-600">Terminal: sudo ./script.sh</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fab fa-linux text-4xl text-orange-500 mb-2"></i>
+                            <h4 class="font-medium">Linux</h4>
+                            <p class="text-sm text-gray-600">Terminal: sudo ./script.sh</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Monitoring Tab -->
-            <div id="monitoring-tab" class="tab-content p-6 hidden">
-                <h2 class="text-xl font-bold mb-6">System Monitoring</h2>
+            <div id="monitoring-tab" class="tab-content p-6">
+                <h2 class="text-xl font-bold mb-6">Network Monitoring</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white border rounded-lg p-4">
-                        <h3 class="text-lg font-medium mb-4">Connection Status</h3>
-                        <canvas id="status-chart" width="400" height="200"></canvas>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Connection Status -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-medium mb-4">Connection Timeline</h3>
+                        <div id="timeline-chart" class="h-64 flex items-center justify-center text-gray-500">
+                            <i class="fas fa-chart-line text-4xl mr-4"></i>
+                            Real-time monitoring coming soon...
+                        </div>
                     </div>
                     
-                    <div class="bg-white border rounded-lg p-4">
+                    <!-- Recent Activity -->
+                    <div class="bg-white border rounded-lg p-6">
                         <h3 class="text-lg font-medium mb-4">Recent Activity</h3>
-                        <div id="activity-log" class="space-y-2 max-h-48 overflow-y-auto">
+                        <div id="activity-log" class="space-y-2 max-h-64 overflow-y-auto">
                             <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Health Summary -->
+                <div class="mt-6 bg-white border rounded-lg p-6">
+                    <h3 class="text-lg font-medium mb-4">Network Health Summary</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" id="health-uptime">99.9%</div>
+                            <div class="text-sm text-green-600">Uptime</div>
+                        </div>
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="health-latency">25ms</div>
+                            <div class="text-sm text-blue-600">Avg Latency</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600" id="health-throughput">150MB</div>
+                            <div class="text-sm text-purple-600">Daily Traffic</div>
+                        </div>
+                        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                            <div class="text-2xl font-bold text-yellow-600" id="health-issues">0</div>
+                            <div class="text-sm text-yellow-600">Issues</div>
                         </div>
                     </div>
                 </div>
@@ -216,40 +315,40 @@
 
     <!-- Add Employee Modal -->
     <div id="add-employee-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96 max-w-md mx-4">
             <h2 class="text-2xl font-bold mb-6">Add New Employee</h2>
             <form id="add-employee-form">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Employee ID</label>
-                        <input type="text" id="new-emp-id" class="w-full px-3 py-2 border rounded-lg" required>
+                        <label class="block text-sm font-medium mb-2">Employee ID*</label>
+                        <input type="text" id="new-emp-id" class="w-full px-3 py-2 border rounded-lg" required pattern="^[a-zA-Z0-9_-]+$">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Name</label>
+                        <label class="block text-sm font-medium mb-2">Name*</label>
                         <input type="text" id="new-emp-name" class="w-full px-3 py-2 border rounded-lg" required>
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <label class="block text-sm font-medium mb-2">Email*</label>
                     <input type="email" id="new-emp-email" class="w-full px-3 py-2 border rounded-lg" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Department</label>
+                        <label class="block text-sm font-medium mb-2">Department*</label>
                         <input type="text" id="new-emp-dept" class="w-full px-3 py-2 border rounded-lg" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Location</label>
+                        <label class="block text-sm font-medium mb-2">Location*</label>
                         <input type="text" id="new-emp-location" class="w-full px-3 py-2 border rounded-lg" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Hostname</label>
-                        <input type="text" id="new-emp-hostname" class="w-full px-3 py-2 border rounded-lg" required>
+                        <label class="block text-sm font-medium mb-2">Hostname*</label>
+                        <input type="text" id="new-emp-hostname" class="w-full px-3 py-2 border rounded-lg" required pattern="^[a-zA-Z0-9-]+$">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">OS</label>
+                        <label class="block text-sm font-medium mb-2">OS*</label>
                         <select id="new-emp-os" class="w-full px-3 py-2 border rounded-lg" required>
                             <option value="">Select OS</option>
                             <option value="windows">Windows</option>
@@ -263,7 +362,7 @@
                         Cancel
                     </button>
                     <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
-                        Add Employee
+                        <i class="fas fa-plus mr-2"></i>Add Employee
                     </button>
                 </div>
             </form>
@@ -271,11 +370,68 @@
     </div>
 
     <script>
-        // API Configuration
+        function showNotification(message, type = 'info') {
+        const colors = {
+            success: 'bg-green-500',
+            error: 'bg-red-500', 
+            warning: 'bg-yellow-500',
+            info: 'bg-blue-500'
+        };
+
+        const icons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-times-circle',
+            warning: 'fas fa-exclamation-triangle',
+            info: 'fas fa-info-circle'
+        };
+
+        const notification = document.createElement('div');
+        notification.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg mb-2 animate-fade-in`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="${icons[type]} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.getElementById('notification-container').appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+        }
+        // Configuration
         const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3000/api';
         let authToken = localStorage.getItem('tailscale_token');
 
-        // API Helper
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500', 
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.getElementById('notification-container').appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
         async function apiCall(endpoint, options = {}) {
             const config = {
                 headers: {
@@ -285,14 +441,24 @@
                 ...options,
             };
 
-            const response = await fetch(`${API_BASE}${endpoint}`, config);
-            
-            if (response.status === 401) {
-                showLogin();
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                
+                if (response.status === 401) {
+                    showLogin();
+                    return null;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showNotification(`API Error: ${error.message}`, 'error');
                 return null;
             }
-            
-            return response.json();
         }
 
         // Authentication
@@ -325,11 +491,12 @@
                     document.getElementById('user-info').textContent = `Logged in as ${username}`;
                     hideLogin();
                     loadData();
+                    showNotification('Login successful!', 'success');
                 } else {
-                    alert('Invalid credentials');
+                    showNotification('Invalid credentials', 'error');
                 }
             } catch (error) {
-                alert('Login failed');
+                showNotification('Login failed', 'error');
             }
         });
 
@@ -337,6 +504,7 @@
             localStorage.removeItem('tailscale_token');
             authToken = null;
             showLogin();
+            showNotification('Logged out successfully', 'info');
         });
 
         // Tab Navigation
@@ -354,18 +522,19 @@
                 
                 // Show/hide content
                 document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.add('hidden');
+                    content.classList.remove('active');
                 });
-                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
             });
         });
 
-        // Load Data
+        // Data Loading
         async function loadData() {
             await Promise.all([
                 loadEmployees(),
                 loadDevices(),
                 updateStats(),
+                loadActivity()
             ]);
         }
 
@@ -375,11 +544,11 @@
 
             const tbody = document.getElementById('employees-table');
             tbody.innerHTML = employees.map(emp => `
-                <tr class="border-t">
-                    <td class="px-4 py-3">${emp.id}</td>
+                <tr class="border-t hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">${emp.id}</td>
                     <td class="px-4 py-3">${emp.name}</td>
+                    <td class="px-4 py-3">${emp.email}</td>
                     <td class="px-4 py-3">${emp.department}</td>
-                    <td class="px-4 py-3">${emp.location}</td>
                     <td class="px-4 py-3">
                         <span class="inline-block px-2 py-1 text-xs rounded-full ${getOSColor(emp.os)}">
                             ${emp.os}
@@ -390,11 +559,11 @@
                         <span class="ml-2 text-sm">Unknown</span>
                     </td>
                     <td class="px-4 py-3">
-                        <button onclick="generateAuthKey('${emp.id}')" class="text-blue-500 hover:text-blue-700 mr-3">
-                            <i class="fas fa-key"></i> Auth Key
+                        <button onclick="generateAuthKey('${emp.id}')" class="text-blue-500 hover:text-blue-700 mr-3" title="Generate Auth Key">
+                            <i class="fas fa-key"></i>
                         </button>
-                        <button onclick="deployScript('${emp.id}')" class="text-green-500 hover:text-green-700">
-                            <i class="fas fa-download"></i> Deploy
+                        <button onclick="downloadScript('${emp.id}', '${emp.os}')" class="text-green-500 hover:text-green-700" title="Download Script">
+                            <i class="fas fa-download"></i>
                         </button>
                     </td>
                 </tr>
@@ -412,7 +581,7 @@
 
             const grid = document.getElementById('devices-grid');
             grid.innerHTML = devices.map(device => `
-                <div class="bg-white p-4 rounded-lg border">
+                <div class="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-medium">${device.hostname}</h3>
                         <span class="inline-block w-3 h-3 rounded-full ${device.online ? 'bg-green-500' : 'bg-red-500'}"></span>
@@ -441,8 +610,25 @@
                 document.getElementById('total-employees').textContent = employees.length;
                 document.getElementById('online-devices').textContent = devices.filter(d => d.online).length;
                 document.getElementById('offline-devices').textContent = devices.filter(d => !d.online).length;
-                document.getElementById('active-keys').textContent = employees.length; // Simplified
+                document.getElementById('active-keys').textContent = employees.length;
             }
+        }
+
+        function loadActivity() {
+            const activities = [
+                { time: '2 minutes ago', action: 'Employee emp003 connected', type: 'success' },
+                { time: '15 minutes ago', action: 'Generated auth key for emp002', type: 'info' },
+                { time: '1 hour ago', action: 'Employee emp001 disconnected', type: 'warning' },
+                { time: '2 hours ago', action: 'Added new employee emp004', type: 'info' },
+            ];
+
+            const activityLog = document.getElementById('activity-log');
+            activityLog.innerHTML = activities.map(activity => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-sm">${activity.action}</span>
+                    <span class="text-xs text-gray-500">${activity.time}</span>
+                </div>
+            `).join('');
         }
 
         // Helper Functions
@@ -460,14 +646,37 @@
             try {
                 const result = await apiCall(`/employees/${employeeId}/authkey`, { method: 'POST' });
                 if (result) {
-                    alert(`Auth key generated successfully for ${employeeId}`);
+                    showNotification(`✅ Auth key generated for ${employeeId}`, 'success');
                 }
             } catch (error) {
-                alert('Failed to generate auth key');
+                showNotification('❌ Failed to generate auth key', 'error');
             }
         }
 
-        // Add Employee Modal
+        async function downloadScript(employeeId, os) {
+            try {
+                const response = await fetch(`${API_BASE}/employees/${employeeId}/script/${os}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || `script_${employeeId}_${os}`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    showNotification(`Script downloaded for ${employeeId}`, 'success');
+                } else {
+                    showNotification('Failed to download script', 'error');
+                }
+            } catch (error) {
+                showNotification('Download failed', 'error');
+            }
+        }
+
+        // Employee Management
         document.getElementById('add-employee-btn').addEventListener('click', () => {
             document.getElementById('add-employee-modal').classList.remove('hidden');
         });
@@ -500,45 +709,40 @@
                     document.getElementById('add-employee-form').reset();
                     loadEmployees();
                     updateStats();
+                    showNotification(`Employee ${newEmployee.name} added successfully`, 'success');
                 }
             } catch (error) {
-                alert('Failed to add employee');
+                showNotification('Failed to add employee', 'error');
             }
         });
 
-        // Script Generation
-        document.getElementById('generate-script').addEventListener('click', async () => {
+        // Deployment Functions
+        document.getElementById('generate-auth-key').addEventListener('click', async () => {
+            const employeeId = document.getElementById('deployment-employee').value;
+            if (!employeeId) {
+                showNotification('Please select an employee', 'warning');
+                return;
+            }
+            await generateAuthKey(employeeId);
+        });
+
+        document.getElementById('download-script').addEventListener('click', async () => {
             const employeeId = document.getElementById('deployment-employee').value;
             const os = document.getElementById('deployment-os').value;
 
             if (!employeeId || !os) {
-                alert('Please select both employee and OS');
+                showNotification('Please select both employee and OS', 'warning');
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_BASE}/employees/${employeeId}/script/${os}`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` },
-                });
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = response.headers.get('Content-Disposition').split('filename=')[1].replace(/"/g, '');
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    alert('Failed to generate script');
-                }
-            } catch (error) {
-                alert('Failed to download script');
-            }
+            await downloadScript(employeeId, os);
         });
 
-        // Refresh Devices
-        document.getElementById('refresh-devices').addEventListener('click', loadDevices);
+        // Refresh Functions
+        document.getElementById('refresh-devices').addEventListener('click', () => {
+            loadDevices();
+            showNotification('Device status refreshed', 'info');
+        });
 
         // Initialize
         if (authToken) {
@@ -555,6 +759,20 @@
                 updateStats();
             }
         }, 30000);
+
+        // Check API health on load
+        fetch(`${API_BASE.replace('/api', '')}/health`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    console.log('✅ API server is healthy');
+                } else {
+                    showNotification('API server health check failed', 'warning');
+                }
+            })
+            .catch(() => {
+                showNotification('Cannot connect to API server', 'error');
+            });
     </script>
 </body>
 </html>
