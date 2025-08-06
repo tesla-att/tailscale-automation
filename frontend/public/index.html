@@ -3,73 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailscale Automation - Admin Dashboard</title>
+    <title>Tailscale Windows Deployment Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tailscale': '#3b82f6',
+                        'windows': '#00bcf2'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         .nav-tab.active { border-bottom-color: white !important; }
         .tab-content { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .notification { position: fixed; top: 20px; right: 20px; z-index: 1000; min-width: 300px; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .table-hover:hover { background-color: #f8fafc; }
+        .status-pending { @apply bg-yellow-100 text-yellow-800; }
+        .status-active { @apply bg-green-100 text-green-800; }
+        .status-connected { @apply bg-blue-100 text-blue-800; }
+        .status-error { @apply bg-red-100 text-red-800; }
+        .status-inactive { @apply bg-gray-100 text-gray-800; }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-96">
             <div class="text-center mb-6">
-                <i class="fas fa-network-wired text-4xl text-blue-500 mb-4"></i>
-                <h2 class="text-2xl font-bold">Tailscale Admin</h2>
+                <div class="w-16 h-16 bg-gradient-to-br from-tailscale to-windows rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fab fa-windows text-2xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Tailscale Windows Manager</h2>
+                <p class="text-gray-600 text-sm">Deployment & User Management System</p>
             </div>
             <form id="login-form">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                    <input type="text" id="username" value="admin" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        <i class="fas fa-user mr-2"></i>Username
+                    </label>
+                    <input type="text" id="username" value="admin" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent transition" 
+                           required>
                 </div>
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <input type="password" id="password" value="admin123" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <input type="password" id="password" value="admin123" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent transition" 
+                           required>
                 </div>
-                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                <button type="submit" class="w-full bg-gradient-to-r from-tailscale to-windows text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition duration-300">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login to Dashboard
                 </button>
             </form>
             <div class="mt-4 text-xs text-gray-500 text-center">
-                Default: admin / admin123
+                <i class="fas fa-shield-alt mr-1"></i>Secure Admin Access • Default: admin / admin123
             </div>
         </div>
     </div>
 
     <!-- Main App -->
-    <div id="app" class="hidden">
+    <div id="app" class="hidden min-h-screen">
         <!-- Header -->
-        <header class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-gray-800">
-                    <i class="fas fa-network-wired mr-2 text-blue-500"></i>
-                    Tailscale Automation
-                </h1>
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-600">Welcome, <span id="username-display">Admin</span></span>
-                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </button>
+        <header class="bg-white shadow-lg border-b-2 border-tailscale">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-tailscale to-windows rounded-lg flex items-center justify-center mr-4">
+                            <i class="fab fa-windows text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Tailscale Windows Manager</h1>
+                            <p class="text-sm text-gray-600">Enterprise Deployment System</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-800">Welcome, <span id="username-display">Admin</span></p>
+                            <p class="text-xs text-gray-600" id="last-activity">Last activity: Now</p>
+                        </div>
+                        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- Navigation -->
-        <nav class="bg-blue-500 text-white">
-            <div class="container mx-auto px-4">
+        <nav class="bg-gradient-to-r from-tailscale to-windows text-white shadow-lg">
+            <div class="container mx-auto px-6">
                 <div class="flex space-x-8">
-                    <button class="nav-tab active py-4 px-2 border-b-2 border-transparent hover:border-white" data-tab="dashboard">
-                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                    <button class="nav-tab active py-4 px-4 border-b-2 border-transparent hover:border-white transition" data-tab="dashboard">
+                        <i class="fas fa-chart-pie mr-2"></i>Dashboard
                     </button>
-                    <button class="nav-tab py-4 px-2 border-b-2 border-transparent hover:border-white" data-tab="employees">
-                        <i class="fas fa-users mr-2"></i>Employees
+                    <button class="nav-tab py-4 px-4 border-b-2 border-transparent hover:border-white transition" data-tab="users">
+                        <i class="fas fa-users mr-2"></i>Users
                     </button>
-                    <button class="nav-tab py-4 px-2 border-b-2 border-transparent hover:border-white" data-tab="deployment">
+                    <button class="nav-tab py-4 px-4 border-b-2 border-transparent hover:border-white transition" data-tab="deployment">
                         <i class="fas fa-download mr-2"></i>Deployment
+                    </button>
+                    <button class="nav-tab py-4 px-4 border-b-2 border-transparent hover:border-white transition" data-tab="logs">
+                        <i class="fas fa-file-alt mr-2"></i>Activity Logs
+                    </button>
+                    <button class="nav-tab py-4 px-4 border-b-2 border-transparent hover:border-white transition" data-tab="settings">
+                        <i class="fas fa-cog mr-2"></i>Settings
                     </button>
                 </div>
             </div>
@@ -79,199 +125,445 @@
         <div id="notification-area"></div>
 
         <!-- Content -->
-        <main class="container mx-auto px-4 py-8">
+        <main class="container mx-auto px-6 py-8">
             <!-- Dashboard Tab -->
             <div id="dashboard-tab" class="tab-content">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-500 mr-4">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
                                 <i class="fas fa-users text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Total Employees</p>
-                                <p class="text-3xl font-bold" id="total-employees">0</p>
+                                <p class="text-gray-500 text-sm font-medium">Total Users</p>
+                                <p class="text-3xl font-bold text-gray-800" id="total-users">0</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-green-100 text-green-500 mr-4">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                                 <i class="fas fa-check-circle text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Connected</p>
-                                <p class="text-3xl font-bold text-green-500" id="connected-devices">0</p>
+                                <p class="text-gray-500 text-sm font-medium">Connected</p>
+                                <p class="text-3xl font-bold text-green-600" id="connected-users">0</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500 mr-4">
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
                                 <i class="fas fa-key text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Auth Keys</p>
-                                <p class="text-3xl font-bold" id="total-keys">1</p>
+                                <p class="text-gray-500 text-sm font-medium">Auth Keys</p>
+                                <p class="text-3xl font-bold text-yellow-600" id="total-authkeys">0</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-500 mr-4">
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
                                 <i class="fas fa-download text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Downloads</p>
-                                <p class="text-3xl font-bold" id="total-downloads">0</p>
+                                <p class="text-gray-500 text-sm font-medium">Downloads</p>
+                                <p class="text-3xl font-bold text-purple-600" id="total-downloads">0</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-lg font-bold mb-4">System Status</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 border rounded">
-                            <h4 class="font-semibold text-green-600">✅ API Server</h4>
-                            <p class="text-sm text-gray-600">Running and healthy</p>
+
+                <!-- System Status -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">
+                            <i class="fas fa-server mr-2 text-tailscale"></i>System Status
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                    <span class="font-medium">API Server</span>
+                                </div>
+                                <span class="text-green-600 text-sm font-semibold">Online</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-database text-green-500 mr-3"></i>
+                                    <span class="font-medium">Database</span>
+                                </div>
+                                <span class="text-green-600 text-sm font-semibold">Connected</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-cloud text-blue-500 mr-3"></i>
+                                    <span class="font-medium">Tailscale API</span>
+                                </div>
+                                <span class="text-blue-600 text-sm font-semibold" id="api-status">Checking...</span>
+                            </div>
                         </div>
-                        <div class="p-4 border rounded">
-                            <h4 class="font-semibold text-green-600">✅ Database</h4>
-                            <p class="text-sm text-gray-600">Redis connected</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">
+                            <i class="fas fa-chart-bar mr-2 text-tailscale"></i>Recent Activity
+                        </h3>
+                        <div id="recent-activity" class="space-y-3">
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-clock text-2xl mb-2"></i>
+                                <p>Loading recent activity...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Employees Tab -->
-            <div id="employees-tab" class="tab-content hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold">Employee Management</h2>
-                    <button id="add-employee-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-plus mr-2"></i>Add Employee
-                    </button>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Name</th>
-                                <th class="px-4 py-3 text-left">Email</th>
-                                <th class="px-4 py-3 text-left">Department</th>
-                                <th class="px-4 py-3 text-left">OS</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                                <th class="px-4 py-3 text-left">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="employees-table">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                    <!-- Users Header -->
+                    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-users mr-2 text-tailscale"></i>User Management
+                            </h2>
+                            <p class="text-gray-600 text-sm">Manage Windows users and their Tailscale deployments</p>
+                        </div>
+                        <button id="add-user-btn" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300">
+                            <i class="fas fa-plus mr-2"></i>Add User
+                        </button>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="user-search" placeholder="Search users by name or email..." 
+                                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent">
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="department-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale">
+                                    <option value="">All Departments</option>
+                                </select>
+                                <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="active">Active</option>
+                                    <option value="connected">Connected</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="error">Error</option>
+                                </select>
+                                <button id="refresh-users-btn" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table" class="bg-white divide-y divide-gray-200">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="users-pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <!-- Dynamic pagination -->
+                    </div>
                 </div>
             </div>
 
             <!-- Deployment Tab -->
             <div id="deployment-tab" class="tab-content hidden">
-                <h2 class="text-xl font-bold mb-6">Script Generation & Deployment</h2>
-                
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                    <div class="flex">
-                        <i class="fas fa-exclamation-triangle text-yellow-400 mr-3"></i>
-                        <div>
-                            <h3 class="text-lg font-medium text-yellow-800">Quick Setup Process</h3>
-                            <p class="text-yellow-700">
-                                1. Generate auth key → 2. Select employee → 3. Download script → 4. Send to employee
-                            </p>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fab fa-windows mr-2 text-windows"></i>Windows Deployment Center
+                        </h2>
+                        <p class="text-gray-600 text-sm">Generate and manage Tailscale installation scripts for Windows</p>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Auth Key Status -->
+                        <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-blue-800">
+                                        <i class="fas fa-key mr-2"></i>Auth Key Status
+                                    </h3>
+                                    <p class="text-blue-600 text-sm" id="authkey-info">Checking auth key status...</p>
+                                </div>
+                                <button id="generate-authkey-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition">
+                                    <i class="fas fa-key mr-2"></i>Generate New Key
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Script Generator -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 text-gray-800">
+                                    <i class="fas fa-code mr-2"></i>Script Generator
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2">Select User</label>
+                                        <select id="deployment-user" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale">
+                                            <option value="">Choose a user...</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2">Script Type</label>
+                                        <div class="grid grid-cols-1 gap-2">
+                                            <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                <input type="radio" name="script-type" value="powershell" checked class="mr-3">
+                                                <div class="flex items-center">
+                                                    <i class="fab fa-windows text-windows text-xl mr-3"></i>
+                                                    <div>
+                                                        <span class="font-medium">PowerShell Script (.ps1)</span>
+                                                        <p class="text-sm text-gray-600">Modern PowerShell with advanced features</p>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                <input type="radio" name="script-type" value="batch" class="mr-3">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-terminal text-gray-600 text-xl mr-3"></i>
+                                                    <div>
+                                                        <span class="font-medium">Batch Script (.bat)</span>
+                                                        <p class="text-sm text-gray-600">Classic batch file for older systems</p>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button id="generate-script-btn" class="w-full bg-gradient-to-r from-tailscale to-windows text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg transition duration-300">
+                                        <i class="fas fa-download mr-2"></i>Generate & Download Script
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 text-gray-800">
+                                    <i class="fas fa-history mr-2"></i>Recent Downloads
+                                </h3>
+                                <div id="recent-downloads" class="space-y-3 max-h-96 overflow-y-auto">
+                                    <div class="text-center py-8 text-gray-500">
+                                        <i class="fas fa-download text-2xl mb-2"></i>
+                                        <p>No downloads yet</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Auth Key Management -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold mb-4">Auth Key Management</h3>
-                        <button id="generate-authkey-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg mb-4">
-                            <i class="fas fa-key mr-2"></i>Generate New Auth Key
-                        </button>
-                        <div id="authkey-status" class="p-4 bg-gray-100 rounded-lg">
-                            <p class="text-sm text-gray-600">Current auth key ready for use</p>
-                        </div>
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-file-alt mr-2 text-tailscale"></i>Activity Logs
+                        </h2>
+                        <p class="text-gray-600 text-sm">Monitor system activity and user actions</p>
                     </div>
 
-                    <!-- Script Generation -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold mb-4">Generate Installation Scripts</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2">Employee</label>
-                                <select id="script-employee" class="w-full px-3 py-2 border rounded-lg">
-                                    <option value="">Select Employee</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2">Operating System</label>
-                                <select id="script-os" class="w-full px-3 py-2 border rounded-lg">
-                                    <option value="">Select OS</option>
-                                    <option value="windows">Windows</option>
-                                    <option value="macos">macOS</option>
-                                    <option value="linux">Linux</option>
-                                </select>
-                            </div>
-                            <button id="generate-script-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                                <i class="fas fa-download mr-2"></i>Download Script
+                    <!-- Log Filters -->
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <select id="log-level-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale">
+                                <option value="">All Levels</option>
+                                <option value="INFO">Info</option>
+                                <option value="WARN">Warning</option>
+                                <option value="ERROR">Error</option>
+                            </select>
+                            <select id="log-category-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale">
+                                <option value="">All Categories</option>
+                                <option value="AUTH">Authentication</option>
+                                <option value="USER">User Actions</option>
+                                <option value="SYSTEM">System</option>
+                            </select>
+                            <button id="refresh-logs-btn" class="px-4 py-2 bg-tailscale hover:bg-blue-600 text-white rounded-lg transition">
+                                <i class="fas fa-sync-alt mr-2"></i>Refresh
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Recent Downloads -->
-                <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-lg font-bold mb-4">Recent Downloads</h3>
-                    <div id="recent-downloads" class="space-y-2">
-                        <p class="text-gray-500">No downloads yet</p>
+                    <!-- Logs Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Time</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Level</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Category</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Action</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">User</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table" class="bg-white divide-y divide-gray-200">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Tailscale Settings -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-bold text-gray-800">
+                                <i class="fas fa-cogs mr-2 text-tailscale"></i>Tailscale Configuration
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <button id="test-api-btn" class="w-full bg-tailscale hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition duration-200">
+                                <i class="fas fa-satellite-dish mr-2"></i>Test API Connection
+                            </button>
+                            <div id="api-test-result" class="mt-4 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- System Settings -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-bold text-gray-800">
+                                <i class="fas fa-tools mr-2 text-tailscale"></i>System Settings
+                            </h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <button id="backup-db-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition duration-200">
+                                <i class="fas fa-database mr-2"></i>Backup Database
+                            </button>
+                            <button id="cleanup-logs-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-4 rounded-lg transition duration-200">
+                                <i class="fas fa-trash-alt mr-2"></i>Cleanup Old Logs
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Add Employee Modal -->
-    <div id="add-employee-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-            <h3 class="text-xl font-bold mb-4">Add New Employee</h3>
-            <form id="add-employee-form">
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2">Name *</label>
-                    <input type="text" id="employee-name" class="w-full px-3 py-2 border rounded-lg" required>
+    <!-- Add/Edit User Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800" id="user-modal-title">Add New User</h3>
+                <p class="text-gray-600 text-sm">Enter user details for Windows deployment</p>
+            </div>
+            <form id="user-form" class="p-6">
+                <input type="hidden" id="user-id" value="">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-user mr-1"></i>Full Name *
+                        </label>
+                        <input type="text" id="user-name" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                               placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-envelope mr-1"></i>Email Address *
+                        </label>
+                        <input type="email" id="user-email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                               placeholder="john.doe@company.com">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-building mr-1"></i>Department *
+                        </label>
+                        <input type="text" id="user-department" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                               placeholder="IT Department">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-briefcase mr-1"></i>Position
+                        </label>
+                        <input type="text" id="user-position" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                               placeholder="Software Developer">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-desktop mr-1"></i>Computer Name
+                        </label>
+                        <input type="text" id="user-computer" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                               placeholder="JOHN-LAPTOP">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-sticky-note mr-1"></i>Notes
+                        </label>
+                        <textarea id="user-notes" rows="3" 
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tailscale focus:border-transparent" 
+                                  placeholder="Additional notes..."></textarea>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2">Email *</label>
-                    <input type="email" id="employee-email" class="w-full px-3 py-2 border rounded-lg" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2">Department *</label>
-                    <input type="text" id="employee-department" class="w-full px-3 py-2 border rounded-lg" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-bold mb-2">Operating System *</label>
-                    <select id="employee-os" class="w-full px-3 py-2 border rounded-lg" required>
-                        <option value="">Select OS</option>
-                        <option value="windows">Windows</option>
-                        <option value="macos">macOS</option>
-                        <option value="linux">Linux</option>
-                    </select>
-                </div>
-                <div class="flex space-x-4">
-                    <button type="button" id="cancel-employee-btn" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
+                <div class="flex space-x-4 mt-6">
+                    <button type="button" id="cancel-user-btn" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition duration-200">
                         Cancel
                     </button>
-                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg">
-                        Add Employee
+                    <button type="submit" id="save-user-btn" class="flex-1 bg-gradient-to-r from-tailscale to-windows text-white py-3 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-save mr-2"></i>Save User
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Confirm Deletion</h3>
+                    <p class="text-gray-600 mb-6" id="delete-message">Are you sure you want to delete this user?</p>
+                    <div class="flex space-x-4">
+                        <button id="cancel-delete-btn" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition">
+                            Cancel
+                        </button>
+                        <button id="confirm-delete-btn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-trash mr-2"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
