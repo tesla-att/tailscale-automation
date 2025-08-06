@@ -1,64 +1,6 @@
 version: '3.8'
 
 services:
-<<<<<<< HEAD
-  # =================================================================
-  # NGINX REVERSE PROXY
-  # =================================================================
-  nginx:
-    image: nginx:alpine
-    container_name: tailscale-nginx
-    ports:
-      - "${WEB_PORT:-8080}:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./web:/usr/share/nginx/html:ro
-      - ./logs:/var/log/nginx
-    depends_on:
-      - api-server
-    networks:
-      - tailscale-net
-    restart: unless-stopped
-
-  # =================================================================
-  # API SERVER
-  # =================================================================
-  api-server:
-    build: 
-      context: ./api
-      dockerfile: Dockerfile
-    container_name: tailscale-api
-    ports:
-      - "${API_PORT:-3000}:3000"
-    volumes:
-      - ./config:/config
-      - ./logs:/logs
-      - ./scripts:/scripts
-    environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}
-      - TAILNET=${TAILNET}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_DB=${REDIS_DB:-0}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - CONFIG_DIR=/config
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_SECURE=${SMTP_SECURE:-false}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - ENABLE_EMAIL_ALERTS=${ENABLE_EMAIL_ALERTS:-false}
-      - ALERT_EMAIL=${ALERT_EMAIL}
-      - AUTH_KEY_EXPIRY=${AUTH_KEY_EXPIRY:-2592000}
-      - MAX_EMPLOYEES=${MAX_EMPLOYEES:-100}
-    depends_on:
-      - redis
-    networks:
-      - tailscale-net
-=======
   backend:
     build:
       context: ./backend
@@ -74,33 +16,12 @@ services:
       - TAILSCALE_CLIENT_SECRET=${TAILSCALE_CLIENT_SECRET}
       - TAILSCALE_TAILNET=${TAILSCALE_TAILNET}
       - INITIAL_AUTH_KEY=${INITIAL_AUTH_KEY}
->>>>>>> 1c01e83 (Update)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-<<<<<<< HEAD
-
-  # =================================================================
-  # REDIS CACHE & SESSION STORE
-  # =================================================================
-  redis:
-    image: redis:7-alpine
-    container_name: tailscale-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
-    volumes:
-      - redis_data:/data
-      - ./config/redis.conf:/etc/redis/redis.conf:ro
-    ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - tailscale-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
-=======
     depends_on:
       - redis
 
@@ -122,83 +43,9 @@ services:
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
->>>>>>> 1c01e83 (Update)
       interval: 30s
       timeout: 10s
       retries: 3
 
-<<<<<<< HEAD
-  # =================================================================
-  # BACKGROUND SCHEDULER
-  # =================================================================
-  scheduler:
-    build:
-      context: ./scheduler
-      dockerfile: Dockerfile
-    container_name: tailscale-scheduler
-    volumes:
-      - ./config:/config
-      - ./logs:/logs
-      - ./scripts:/scripts
-    environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}
-      - TAILNET=${TAILNET}
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_DB=${REDIS_DB:-0}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - CONFIG_DIR=/config
-      - RENEWAL_CHECK_INTERVAL=${RENEWAL_CHECK_INTERVAL:-24}
-      - DEVICE_CHECK_INTERVAL=${DEVICE_CHECK_INTERVAL:-5}
-      - ENABLE_EMAIL_ALERTS=${ENABLE_EMAIL_ALERTS:-false}
-      - ALERT_EMAIL=${ALERT_EMAIL}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-    depends_on:
-      - redis
-      - api-server
-    networks:
-      - tailscale-net
-    restart: unless-stopped
-
-  # =================================================================
-  # DATABASE BACKUP SERVICE
-  # =================================================================
-  backup:
-    image: alpine:latest
-    container_name: tailscale-backup
-    volumes:
-      - ./config:/config
-      - ./logs:/logs
-      - ./backups:/backups
-    command: |
-      sh -c "
-        apk add --no-cache dcron
-        echo '0 2 * * * tar -czf /backups/backup-$$(date +%Y%m%d).tar.gz /config /logs' | crontab -
-        crond -f
-      "
-    networks:
-      - tailscale-net
-    restart: unless-stopped
-
-# =================================================================
-# NETWORKS & VOLUMES
-# =================================================================
-networks:
-  tailscale-net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-
 volumes:
   redis_data:
-    driver: local
-=======
-volumes:
-  redis_data:
->>>>>>> 1c01e83 (Update)

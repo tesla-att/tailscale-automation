@@ -1,0 +1,5 @@
+{"level":"info","message":"Redis connected successfully","timestamp":"2025-08-06T08:57:10.080Z"}
+{"level":"info","message":"Data directories initialized","timestamp":"2025-08-06T08:57:10.084Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-06T08:57:10.087Z"}
+{"level":"info","message":"Environment: production","timestamp":"2025-08-06T08:57:10.087Z"}
+{"level":"info","message":"Admin login successful from ::ffff:172.18.0.4","timestamp":"2025-08-06T08:57:39.231Z"}
