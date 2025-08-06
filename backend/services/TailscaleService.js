@@ -11,13 +11,23 @@ class TailscaleService {
         this.accessToken = null;
         this.tokenExpiry = null;
         
-        if (!this.clientId || !this.clientSecret || !this.tailnet) {
-            throw new Error('Missing Tailscale configuration. Please check TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET');
+        this.isConfigured = !!(this.clientId && this.clientSecret && this.tailnet);
+        if (!this.isConfigured) {
+            this.logger.warn('Tailscale configuration incomplete. Some features may not work properly.', {
+                category: 'SYSTEM',
+                hasClientId: !!this.clientId,
+                hasClientSecret: !!this.clientSecret,
+                hasTailnet: !!this.tailnet
+            });
         }
     }
 
     // Get OAuth access token with retry logic
     async getAccessToken(retries = 3) {
+        if (!this.isConfigured) {
+            throw new Error('Tailscale not configured. Please set TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET');
+        }
+        
         // Return cached token if still valid
         if (this.accessToken && this.tokenExpiry && new Date() < this.tokenExpiry) {
             return this.accessToken;

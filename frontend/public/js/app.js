@@ -30,14 +30,24 @@ class TailscaleApp {
             tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
         });
         
-        // Employee management
-        document.getElementById('add-employee-btn').addEventListener('click', () => this.showAddEmployeeModal());
-        document.getElementById('cancel-employee-btn').addEventListener('click', () => this.hideAddEmployeeModal());
-        document.getElementById('add-employee-form').addEventListener('submit', (e) => this.handleAddEmployee(e));
+        // User management
+        document.getElementById('add-user-btn').addEventListener('click', () => this.showAddUserModal());
+        document.getElementById('cancel-user-btn').addEventListener('click', () => this.hideAddUserModal());
+        document.getElementById('user-form').addEventListener('submit', (e) => this.handleAddUser(e));
         
         // Script generation
         document.getElementById('generate-authkey-btn').addEventListener('click', () => this.generateAuthKey());
         document.getElementById('generate-script-btn').addEventListener('click', () => this.generateScript());
+        
+        // Additional buttons
+        document.getElementById('refresh-users-btn').addEventListener('click', () => this.loadEmployees());
+        document.getElementById('refresh-logs-btn').addEventListener('click', () => this.loadLogs());
+        document.getElementById('test-api-btn').addEventListener('click', () => this.testApi());
+        document.getElementById('backup-db-btn').addEventListener('click', () => this.backupDatabase());
+        document.getElementById('cleanup-logs-btn').addEventListener('click', () => this.cleanupLogs());
+        document.getElementById('save-user-btn').addEventListener('click', (e) => this.handleAddUser(e));
+        document.getElementById('cancel-delete-btn').addEventListener('click', () => this.hideDeleteModal());
+        document.getElementById('confirm-delete-btn').addEventListener('click', () => this.confirmDeleteUser());
         
         // Auto-refresh every 30 seconds
         setInterval(() => {
@@ -250,16 +260,16 @@ class TailscaleApp {
         return await response.json();
     }
     
-    showAddEmployeeModal() {
-        document.getElementById('add-employee-modal').classList.remove('hidden');
+    showAddUserModal() {
+        document.getElementById('user-modal').classList.remove('hidden');
     }
     
-    hideAddEmployeeModal() {
-        document.getElementById('add-employee-modal').classList.add('hidden');
-        document.getElementById('add-employee-form').reset();
+    hideAddUserModal() {
+        document.getElementById('user-modal').classList.add('hidden');
+        document.getElementById('user-form').reset();
     }
     
-    async handleAddEmployee(e) {
+    async handleAddUser(e) {
         e.preventDefault();
         
         const employeeData = {
@@ -280,7 +290,7 @@ class TailscaleApp {
             });
             
             if (response.ok) {
-                this.hideAddEmployeeModal();
+                this.hideAddUserModal();
                 this.loadEmployees();
                 this.updateDashboardStats();
                 this.showNotification(`Employee ${employeeData.name} added successfully!`, 'success');
@@ -404,6 +414,137 @@ class TailscaleApp {
     
     editEmployee(employeeId) {
         this.showNotification('Employee editing feature coming soon!', 'info');
+    }
+    
+    async loadLogs() {
+        try {
+            const response = await fetch(`${this.apiBase}/logs`, {
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                const logs = await response.json();
+                this.displayLogs(logs);
+                this.showNotification('Logs refreshed', 'success');
+            } else {
+                this.showNotification('Failed to load logs', 'error');
+            }
+        } catch (error) {
+            this.showNotification('Error loading logs: ' + error.message, 'error');
+        }
+    }
+    
+    displayLogs(logs) {
+        const logsTable = document.getElementById('logs-table');
+        if (!logsTable) return;
+        
+        logsTable.innerHTML = logs.map(log => `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">${new Date(log.created_at).toLocaleString()}</td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="px-2 py-1 text-xs rounded ${this.getLogLevelClass(log.level)}">${log.level}</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">${log.category}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">${log.action}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">${log.user || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${log.details || '-'}</td>
+            </tr>
+        `).join('');
+    }
+    
+    getLogLevelClass(level) {
+        const classes = {
+            'INFO': 'bg-blue-100 text-blue-800',
+            'WARN': 'bg-yellow-100 text-yellow-800',
+            'ERROR': 'bg-red-100 text-red-800'
+        };
+        return classes[level] || 'bg-gray-100 text-gray-800';
+    }
+    
+    async testApi() {
+        try {
+            const response = await fetch(`${this.apiBase}/system/test-tailscale`, {
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                const resultDiv = document.getElementById('api-test-result');
+                if (resultDiv) {
+                    resultDiv.className = result.success ? 'mt-4 p-4 bg-green-100 text-green-800 rounded' : 'mt-4 p-4 bg-red-100 text-red-800 rounded';
+                    resultDiv.innerHTML = `<strong>${result.success ? 'Success' : 'Failed'}:</strong> ${result.message}`;
+                    resultDiv.classList.remove('hidden');
+                }
+                this.showNotification(result.success ? 'API test successful' : 'API test failed', result.success ? 'success' : 'error');
+            } else {
+                this.showNotification('API test failed', 'error');
+            }
+        } catch (error) {
+            this.showNotification('Error testing API: ' + error.message, 'error');
+        }
+    }
+    
+    async backupDatabase() {
+        try {
+            const response = await fetch(`${this.apiBase}/system/backup`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                this.showNotification('Database backup created successfully', 'success');
+            } else {
+                this.showNotification('Failed to create backup', 'error');
+            }
+        } catch (error) {
+            this.showNotification('Error creating backup: ' + error.message, 'error');
+        }
+    }
+    
+    async cleanupLogs() {
+        try {
+            const response = await fetch(`${this.apiBase}/system/cleanup-logs`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                this.showNotification(`Log cleanup completed. Deleted ${result.deleted} entries.`, 'success');
+            } else {
+                this.showNotification('Failed to cleanup logs', 'error');
+            }
+        } catch (error) {
+            this.showNotification('Error cleaning up logs: ' + error.message, 'error');
+        }
+    }
+    
+    hideDeleteModal() {
+        document.getElementById('delete-modal').classList.add('hidden');
+    }
+    
+    async confirmDeleteUser() {
+        const userId = this.currentDeleteUserId;
+        if (!userId) return;
+        
+        try {
+            const response = await fetch(`${this.apiBase}/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                this.hideDeleteModal();
+                this.loadEmployees();
+                this.updateDashboardStats();
+                this.showNotification('User deleted successfully', 'success');
+            } else {
+                this.showNotification('Failed to delete user', 'error');
+            }
+        } catch (error) {
+            this.showNotification('Error deleting user: ' + error.message, 'error');
+        }
     }
 }
 

@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure logs directory exists
-const LOGS_DIR = '/app/data/logs';
+const LOGS_DIR = path.join(__dirname, '../../data/logs');
 if (!fs.existsSync(LOGS_DIR)) {
     fs.mkdirSync(LOGS_DIR, { recursive: true });
 }
@@ -25,7 +25,21 @@ const customFormat = winston.format.combine(
         logEntry += ` ${message}`;
         
         if (Object.keys(meta).length > 0) {
-            logEntry += ` ${JSON.stringify(meta)}`;
+            // Filter out circular references and sensitive data
+            const safeMeta = {};
+            for (const [key, value] of Object.entries(meta)) {
+                if (key !== 'req' && key !== 'socket' && key !== 'connection') {
+                    try {
+                        JSON.stringify(value); // Test if serializable
+                        safeMeta[key] = value;
+                    } catch (e) {
+                        safeMeta[key] = '[Circular or non-serializable]';
+                    }
+                }
+            }
+            if (Object.keys(safeMeta).length > 0) {
+                logEntry += ` ${JSON.stringify(safeMeta)}`;
+            }
         }
         
         return logEntry;

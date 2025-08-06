@@ -11,3 +11,22 @@
 {"level":"info","message":"Data directories initialized","timestamp":"2025-08-06T10:28:04.055Z"}
 {"level":"info","message":"Server running on port 3000","timestamp":"2025-08-06T10:28:04.059Z"}
 {"level":"info","message":"Environment: production","timestamp":"2025-08-06T10:28:04.059Z"}
+[2025-08-06 11:46:07] ERROR [SYSTEM] Failed to initialize services {"error":"Missing Tailscale configuration. Please check TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET"}
+[2025-08-06 11:46:47] ERROR [SYSTEM] Failed to initialize services {"error":"Missing Tailscale configuration. Please check TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET"}
+[2025-08-06 11:48:18] WARN [SYSTEM] Tailscale configuration incomplete. Some features may not work properly. {"hasClientId":false,"hasClientSecret":false,"hasTailnet":false}
+[2025-08-06 11:48:18] INFO [SYSTEM] All services initialized successfully
+[2025-08-06 11:48:18] INFO [SYSTEM] Server started successfully {"port":3000,"environment":"development","version":"2.0.0"}
+[2025-08-06 11:49:07] INFO [SYSTEM] SIGTERM received, shutting down gracefully
+[2025-08-06 11:49:09] WARN [SYSTEM] Tailscale configuration incomplete. Some features may not work properly. {"hasClientId":false,"hasClientSecret":false,"hasTailnet":false}
+[2025-08-06 11:49:09] INFO [SYSTEM] All services initialized successfully
+[2025-08-06 11:49:09] INFO [SYSTEM] Server started successfully {"port":3000,"environment":"development","version":"2.0.0"}
+[2025-08-06 11:49:15] INFO [HTTP] [IP:::1] GET /health {"userAgent":"curl/8.5.0"}
+[2025-08-06 11:49:29] INFO [HTTP] [IP:::1] POST /api/auth/login {"userAgent":"curl/8.5.0"}
+[2025-08-06 11:49:29] INFO [AUTH] [IP:::1] Admin login successful {"username":"admin"}
+[2025-08-06 11:55:22] INFO [SYSTEM] SIGTERM received, shutting down gracefully
+[2025-08-06 11:55:24] WARN [SYSTEM] Tailscale configuration incomplete. Some features may not work properly. {"hasClientId":false,"hasClientSecret":false,"hasTailnet":false}
+[2025-08-06 11:55:24] INFO [SYSTEM] All services initialized successfully
+[2025-08-06 11:55:24] INFO [SYSTEM] Server started successfully {"port":3000,"environment":"development","version":"2.0.0"}
+[2025-08-06 11:55:29] INFO [HTTP] [IP:::1] GET /health {"userAgent":"curl/8.5.0"}
+[2025-08-06 11:55:44] INFO [HTTP] [IP:::1] POST /api/auth/login {"userAgent":"curl/8.5.0"}
+[2025-08-06 11:55:44] INFO [AUTH] [IP:::1] Admin login successful {"username":"admin"}

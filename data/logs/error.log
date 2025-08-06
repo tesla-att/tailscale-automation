@@ -1,0 +1,2 @@
+[2025-08-06 11:46:07] ERROR [SYSTEM] Failed to initialize services {"error":"Missing Tailscale configuration. Please check TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET"}
+[2025-08-06 11:46:47] ERROR [SYSTEM] Failed to initialize services {"error":"Missing Tailscale configuration. Please check TAILSCALE_CLIENT_ID, TAILSCALE_CLIENT_SECRET, and TAILSCALE_TAILNET"}

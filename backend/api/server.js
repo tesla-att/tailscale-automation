@@ -11,11 +11,11 @@ const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 
 // Import our custom modules
-const DatabaseManager = require('./database/database');
-const { EnhancedLogger } = require('./utils/logger');
-const User = require('./models/User');
-const TailscaleService = require('./services/TailscaleService');
-const AuthKeyManager = require('./services/AuthKeyManager');
+const DatabaseManager = require('../database/database');
+const { EnhancedLogger } = require('../utils/logger');
+const User = require('../models/User');
+const TailscaleService = require('../services/TailscaleService');
+const AuthKeyManager = require('../services/AuthKeyManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

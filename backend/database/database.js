@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 class DatabaseManager {
-    constructor(dbPath = '/app/data/tailscale_automation.db') {
+    constructor(dbPath = path.join(__dirname, '../../data/tailscale_automation.db')) {
         this.dbPath = dbPath;
         this.db = null;
         
