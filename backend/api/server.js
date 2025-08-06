@@ -1,3 +1,4 @@
+require('dotenv').config();
 // Advanced Backend API Server
 // Complete implementation with database, logging, and Windows script generation
 
