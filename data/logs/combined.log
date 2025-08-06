@@ -3,3 +3,11 @@
 {"level":"info","message":"Server running on port 3000","timestamp":"2025-08-06T08:57:10.087Z"}
 {"level":"info","message":"Environment: production","timestamp":"2025-08-06T08:57:10.087Z"}
 {"level":"info","message":"Admin login successful from ::ffff:172.18.0.4","timestamp":"2025-08-06T08:57:39.231Z"}
+{"level":"info","message":"Redis connected successfully","timestamp":"2025-08-06T09:41:40.463Z"}
+{"level":"info","message":"Data directories initialized","timestamp":"2025-08-06T09:41:40.467Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-06T09:41:40.470Z"}
+{"level":"info","message":"Environment: production","timestamp":"2025-08-06T09:41:40.471Z"}
+{"level":"info","message":"Redis connected successfully","timestamp":"2025-08-06T10:28:04.047Z"}
+{"level":"info","message":"Data directories initialized","timestamp":"2025-08-06T10:28:04.055Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-06T10:28:04.059Z"}
+{"level":"info","message":"Environment: production","timestamp":"2025-08-06T10:28:04.059Z"}
