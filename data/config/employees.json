@@ -1,0 +1,24 @@
+{
+  "employees": [
+    {
+      "id": "c3fc57a0-ddf9-4c6f-96fa-aff3326b0abb",
+      "name": "Tesla",
+      "email": "tesla@attcloud.org",
+      "department": "IT",
+      "os": "windows",
+      "hostname": "tesla-c3fc57a0",
+      "created": "2025-08-05T15:56:38.930Z",
+      "status": "pending"
+    },
+    {
+      "id": "d677a20a-3c8b-4189-ab60-02ff0d2eddca",
+      "name": "Tesla",
+      "email": "tesla@attcloud.org",
+      "department": "IT",
+      "os": "windows",
+      "hostname": "tesla-d677a20a",
+      "created": "2025-08-06T06:18:45.702Z",
+      "status": "pending"
+    }
+  ]
+}

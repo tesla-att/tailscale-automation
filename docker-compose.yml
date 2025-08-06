@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+<<<<<<< HEAD
   # =================================================================
   # NGINX REVERSE PROXY
   # =================================================================
@@ -57,12 +58,30 @@ services:
       - redis
     networks:
       - tailscale-net
+=======
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
+      - TAILSCALE_CLIENT_ID=${TAILSCALE_CLIENT_ID}
+      - TAILSCALE_CLIENT_SECRET=${TAILSCALE_CLIENT_SECRET}
+      - TAILSCALE_TAILNET=${TAILSCALE_TAILNET}
+      - INITIAL_AUTH_KEY=${INITIAL_AUTH_KEY}
+>>>>>>> 1c01e83 (Update)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+<<<<<<< HEAD
 
   # =================================================================
   # REDIS CACHE & SESSION STORE
@@ -81,10 +100,34 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+=======
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+>>>>>>> 1c01e83 (Update)
       interval: 30s
       timeout: 10s
       retries: 3
 
+<<<<<<< HEAD
   # =================================================================
   # BACKGROUND SCHEDULER
   # =================================================================
@@ -155,3 +198,7 @@ networks:
 volumes:
   redis_data:
     driver: local
+=======
+volumes:
+  redis_data:
+>>>>>>> 1c01e83 (Update)
