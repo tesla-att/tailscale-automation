@@ -3,9 +3,32 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure logs directory exists
-const LOGS_DIR = path.join(__dirname, '../../data/logs');
-if (!fs.existsSync(LOGS_DIR)) {
-    fs.mkdirSync(LOGS_DIR, { recursive: true });
+let LOGS_DIR;
+try {
+    // Try to use environment variable first
+    if (process.env.LOGS_DIR) {
+        LOGS_DIR = process.env.LOGS_DIR;
+    } else {
+        // Try relative path from current working directory
+        LOGS_DIR = path.join(process.cwd(), 'data', 'logs');
+    }
+    
+    if (!fs.existsSync(LOGS_DIR)) {
+        fs.mkdirSync(LOGS_DIR, { recursive: true });
+    }
+} catch (error) {
+    console.warn(`Warning: Could not create logs directory ${LOGS_DIR}:`, error.message);
+    // Fallback to current directory
+    LOGS_DIR = path.join(__dirname, 'logs');
+    if (!fs.existsSync(LOGS_DIR)) {
+        try {
+            fs.mkdirSync(LOGS_DIR, { recursive: true });
+        } catch (fallbackError) {
+            console.error('Critical: Could not create any logs directory:', fallbackError.message);
+            // Use /tmp as last resort
+            LOGS_DIR = '/tmp';
+        }
+    }
 }
 
 // Custom format for logs

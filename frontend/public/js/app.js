@@ -3,6 +3,7 @@ class TailscaleApp {
         this.token = localStorage.getItem('tailscale_token');
         this.apiBase = window.location.origin + '/api';
         this.downloadCount = 0;
+        this.currentDeleteUserId = null;
         
         this.init();
     }
@@ -20,10 +21,16 @@ class TailscaleApp {
     
     bindEvents() {
         // Login
-        document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e));
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+        }
         
         // Logout
-        document.getElementById('logout-btn').addEventListener('click', () => this.logout());
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.logout());
+        }
         
         // Navigation
         document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -31,23 +38,72 @@ class TailscaleApp {
         });
         
         // User management
-        document.getElementById('add-user-btn').addEventListener('click', () => this.showAddUserModal());
-        document.getElementById('cancel-user-btn').addEventListener('click', () => this.hideAddUserModal());
-        document.getElementById('user-form').addEventListener('submit', (e) => this.handleAddUser(e));
+        const addUserBtn = document.getElementById('add-user-btn');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => this.showAddUserModal());
+        }
+        
+        const cancelUserBtn = document.getElementById('cancel-user-btn');
+        if (cancelUserBtn) {
+            cancelUserBtn.addEventListener('click', () => this.hideAddUserModal());
+        }
+        
+        const userForm = document.getElementById('user-form');
+        if (userForm) {
+            userForm.addEventListener('submit', (e) => this.handleAddUser(e));
+        }
         
         // Script generation
-        document.getElementById('generate-authkey-btn').addEventListener('click', () => this.generateAuthKey());
-        document.getElementById('generate-script-btn').addEventListener('click', () => this.generateScript());
+        const generateAuthkeyBtn = document.getElementById('generate-authkey-btn');
+        if (generateAuthkeyBtn) {
+            generateAuthkeyBtn.addEventListener('click', () => this.generateAuthKey());
+        }
+        
+        const generateScriptBtn = document.getElementById('generate-script-btn');
+        if (generateScriptBtn) {
+            generateScriptBtn.addEventListener('click', () => this.generateScript());
+        }
         
         // Additional buttons
-        document.getElementById('refresh-users-btn').addEventListener('click', () => this.loadEmployees());
-        document.getElementById('refresh-logs-btn').addEventListener('click', () => this.loadLogs());
-        document.getElementById('test-api-btn').addEventListener('click', () => this.testApi());
-        document.getElementById('backup-db-btn').addEventListener('click', () => this.backupDatabase());
-        document.getElementById('cleanup-logs-btn').addEventListener('click', () => this.cleanupLogs());
-        document.getElementById('save-user-btn').addEventListener('click', (e) => this.handleAddUser(e));
-        document.getElementById('cancel-delete-btn').addEventListener('click', () => this.hideDeleteModal());
-        document.getElementById('confirm-delete-btn').addEventListener('click', () => this.confirmDeleteUser());
+        const refreshUsersBtn = document.getElementById('refresh-users-btn');
+        if (refreshUsersBtn) {
+            refreshUsersBtn.addEventListener('click', () => this.loadUsers());
+        }
+        
+        const refreshLogsBtn = document.getElementById('refresh-logs-btn');
+        if (refreshLogsBtn) {
+            refreshLogsBtn.addEventListener('click', () => this.loadLogs());
+        }
+        
+        const testApiBtn = document.getElementById('test-api-btn');
+        if (testApiBtn) {
+            testApiBtn.addEventListener('click', () => this.testApi());
+        }
+        
+        const backupDbBtn = document.getElementById('backup-db-btn');
+        if (backupDbBtn) {
+            backupDbBtn.addEventListener('click', () => this.backupDatabase());
+        }
+        
+        const cleanupLogsBtn = document.getElementById('cleanup-logs-btn');
+        if (cleanupLogsBtn) {
+            cleanupLogsBtn.addEventListener('click', () => this.cleanupLogs());
+        }
+        
+        const saveUserBtn = document.getElementById('save-user-btn');
+        if (saveUserBtn) {
+            saveUserBtn.addEventListener('click', (e) => this.handleAddUser(e));
+        }
+        
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', () => this.hideDeleteModal());
+        }
+        
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => this.confirmDeleteUser());
+        }
         
         // Auto-refresh every 30 seconds
         setInterval(() => {
@@ -76,7 +132,10 @@ class TailscaleApp {
             </div>
         `;
         
-        document.getElementById('notification-area').appendChild(notification);
+        const notificationArea = document.getElementById('notification-area');
+        if (notificationArea) {
+            notificationArea.appendChild(notification);
+        }
         
         setTimeout(() => {
             if (notification.parentElement) {
@@ -122,13 +181,17 @@ class TailscaleApp {
     }
     
     showLogin() {
-        document.getElementById('login-modal').classList.remove('hidden');
-        document.getElementById('app').classList.add('hidden');
+        const loginModal = document.getElementById('login-modal');
+        const app = document.getElementById('app');
+        if (loginModal) loginModal.classList.remove('hidden');
+        if (app) app.classList.add('hidden');
     }
     
     showApp() {
-        document.getElementById('login-modal').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
+        const loginModal = document.getElementById('login-modal');
+        const app = document.getElementById('app');
+        if (loginModal) loginModal.classList.add('hidden');
+        if (app) app.classList.remove('hidden');
     }
     
     switchTab(tabName) {
@@ -136,24 +199,36 @@ class TailscaleApp {
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.classList.remove('active', 'border-white');
         });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active', 'border-white');
+        const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active', 'border-white');
+        }
         
         // Update content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
         });
-        document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+        const tabContent = document.getElementById(`${tabName}-tab`);
+        if (tabContent) {
+            tabContent.classList.remove('hidden');
+        }
         
         // Load tab data
         switch (tabName) {
             case 'dashboard':
                 this.loadDashboard();
                 break;
-            case 'employees':
-                this.loadEmployees();
+            case 'users':
+                this.loadUsers();
                 break;
             case 'deployment':
                 this.loadDeploymentOptions();
+                break;
+            case 'logs':
+                this.loadLogs();
+                break;
+            case 'settings':
+                this.loadSettings();
                 break;
         }
     }
@@ -161,6 +236,7 @@ class TailscaleApp {
     async loadDashboard() {
         try {
             await this.updateDashboardStats();
+            await this.loadRecentActivity();
         } catch (error) {
             console.error('Failed to load dashboard:', error);
             this.showNotification('Failed to load dashboard data', 'error');
@@ -169,83 +245,102 @@ class TailscaleApp {
     
     async updateDashboardStats() {
         try {
-            const employees = await this.fetchEmployees();
+            const users = await this.fetchUsers();
             
-            document.getElementById('total-employees').textContent = employees.length;
-            document.getElementById('connected-devices').textContent = 
-                employees.filter(e => e.status === 'connected').length;
-            document.getElementById('total-downloads').textContent = this.downloadCount;
+            const totalUsersEl = document.getElementById('total-users');
+            if (totalUsersEl) {
+                totalUsersEl.textContent = users.length;
+            }
+            
+            const connectedUsersEl = document.getElementById('connected-users');
+            if (connectedUsersEl) {
+                connectedUsersEl.textContent = users.filter(u => u.status === 'connected').length;
+            }
+            
+            const totalAuthkeysEl = document.getElementById('total-authkeys');
+            if (totalAuthkeysEl) {
+                totalAuthkeysEl.textContent = users.filter(u => u.authKey).length;
+            }
+            
+            const totalDownloadsEl = document.getElementById('total-downloads');
+            if (totalDownloadsEl) {
+                totalDownloadsEl.textContent = this.downloadCount;
+            }
             
         } catch (error) {
             console.error('Failed to update stats:', error);
         }
     }
     
-    async loadEmployees() {
+    async loadUsers() {
         try {
-            const employees = await this.fetchEmployees();
-            const tbody = document.getElementById('employees-table');
+            const users = await this.fetchUsers();
+            const tbody = document.getElementById('users-table');
             
-            if (employees.length === 0) {
+            if (!tbody) return;
+            
+            if (users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
-                            No employees added yet. Click "Add Employee" to get started.
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            No users added yet. Click "Add User" to get started.
                         </td>
                     </tr>
                 `;
                 return;
             }
             
-            tbody.innerHTML = employees.map(emp => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="px-4 py-3 font-medium">${emp.name}</td>
-                    <td class="px-4 py-3">${emp.email}</td>
-                    <td class="px-4 py-3">${emp.department}</td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                            ${emp.os}
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-gray-900">${user.name}</div>
+                            <div class="text-sm text-gray-500">${user.email}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${user.department || '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs rounded-full ${this.getStatusClass(user.status)}">
+                            ${user.status || 'pending'}
                         </span>
                     </td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full ${emp.status === 'connected' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                            ${emp.status}
-                        </span>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        ${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
                     </td>
-                    <td class="px-4 py-3">
-                        <button onclick="app.downloadScript('${emp.id}', '${emp.os}')" 
-                                class="text-blue-500 hover:text-blue-700 mr-2" 
-                                title="Download script">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button onclick="app.editEmployee('${emp.id}')" 
-                                class="text-green-500 hover:text-green-700" 
-                                title="Edit employee">
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <button onclick="app.editUser('${user.id}')" 
+                                class="text-indigo-600 hover:text-indigo-900 mr-3">
                             <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="app.deleteUser('${user.id}')" 
+                                class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>
             `).join('');
         } catch (error) {
-            console.error('Failed to load employees:', error);
-            this.showNotification('Failed to load employees', 'error');
+            console.error('Failed to load users:', error);
+            this.showNotification('Failed to load users', 'error');
         }
     }
     
     async loadDeploymentOptions() {
         try {
-            const employees = await this.fetchEmployees();
-            const select = document.getElementById('script-employee');
+            const users = await this.fetchUsers();
+            const select = document.getElementById('deployment-user');
             
-            select.innerHTML = '<option value="">Select Employee</option>' +
-                employees.map(emp => `<option value="${emp.id}">${emp.name} (${emp.os})</option>`).join('');
+            if (select) {
+                select.innerHTML = '<option value="">Choose a user...</option>' +
+                    users.map(user => `<option value="${user.id}">${user.name} (${user.email})</option>`).join('');
+            }
         } catch (error) {
             console.error('Failed to load deployment options:', error);
         }
     }
     
-    async fetchEmployees() {
-        const response = await fetch(`${this.apiBase}/employees`, {
+    async fetchUsers() {
+        const response = await fetch(`${this.apiBase}/users`, {
             headers: { 'Authorization': `Bearer ${this.token}` }
         });
         
@@ -254,58 +349,65 @@ class TailscaleApp {
                 this.logout();
                 throw new Error('Session expired');
             }
-            throw new Error('Failed to fetch employees');
+            throw new Error('Failed to fetch users');
         }
         
         return await response.json();
     }
     
     showAddUserModal() {
-        document.getElementById('user-modal').classList.remove('hidden');
+        const modal = document.getElementById('user-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
     }
     
     hideAddUserModal() {
-        document.getElementById('user-modal').classList.add('hidden');
-        document.getElementById('user-form').reset();
+        const modal = document.getElementById('user-modal');
+        const form = document.getElementById('user-form');
+        if (modal) modal.classList.add('hidden');
+        if (form) form.reset();
     }
     
     async handleAddUser(e) {
         e.preventDefault();
         
-        const employeeData = {
-            name: document.getElementById('employee-name').value,
-            email: document.getElementById('employee-email').value,
-            department: document.getElementById('employee-department').value,
-            os: document.getElementById('employee-os').value
+        const userData = {
+            name: document.getElementById('user-name').value,
+            email: document.getElementById('user-email').value,
+            department: document.getElementById('user-department').value,
+            position: document.getElementById('user-position').value,
+            computer_name: document.getElementById('user-computer').value,
+            notes: document.getElementById('user-notes').value
         };
         
         try {
-            const response = await fetch(`${this.apiBase}/employees`, {
+            const response = await fetch(`${this.apiBase}/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.token}`
                 },
-                body: JSON.stringify(employeeData)
+                body: JSON.stringify(userData)
             });
             
             if (response.ok) {
                 this.hideAddUserModal();
-                this.loadEmployees();
+                this.loadUsers();
                 this.updateDashboardStats();
-                this.showNotification(`Employee ${employeeData.name} added successfully!`, 'success');
+                this.showNotification(`User ${userData.name} added successfully!`, 'success');
             } else {
                 const error = await response.json();
-                this.showNotification('Failed to add employee: ' + error.error, 'error');
+                this.showNotification('Failed to add user: ' + error.error, 'error');
             }
         } catch (error) {
-            this.showNotification('Error adding employee: ' + error.message, 'error');
+            this.showNotification('Error adding user: ' + error.message, 'error');
         }
     }
     
     async generateAuthKey() {
         try {
-            const response = await fetch(`${this.apiBase}/authkeys/generate`, {
+            const response = await fetch(`${this.apiBase}/auth-keys/generate`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
@@ -313,14 +415,17 @@ class TailscaleApp {
             const data = await response.json();
             
             if (response.ok) {
-                document.getElementById('authkey-status').innerHTML = `
-                    <div class="flex items-center text-green-600 mb-2">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        <span class="font-medium">Auth Key Generated Successfully</span>
-                    </div>
-                    <p class="text-xs text-gray-500">Expires: ${new Date(data.expires).toLocaleDateString()}</p>
-                    <p class="text-xs text-gray-600 mt-1">Key: ${data.authKey.substring(0, 20)}...</p>
-                `;
+                const authkeyInfo = document.getElementById('authkey-info');
+                if (authkeyInfo) {
+                    authkeyInfo.innerHTML = `
+                        <div class="flex items-center text-green-600 mb-2">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span class="font-medium">Auth Key Generated Successfully</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Expires: ${new Date(data.expires).toLocaleDateString()}</p>
+                        <p class="text-xs text-gray-600 mt-1">Key: ${data.authKey.substring(0, 20)}...</p>
+                    `;
+                }
                 this.showNotification('New auth key generated successfully!', 'success');
             } else {
                 this.showNotification('Failed to generate auth key: ' + data.error, 'error');
@@ -331,26 +436,29 @@ class TailscaleApp {
     }
     
     async generateScript() {
-        const employeeId = document.getElementById('script-employee').value;
-        const os = document.getElementById('script-os').value;
+        const userId = document.getElementById('deployment-user').value;
+        const scriptType = document.querySelector('input[name="script-type"]:checked').value;
         
-        if (!employeeId) {
-            this.showNotification('Please select an employee', 'warning');
+        if (!userId) {
+            this.showNotification('Please select a user', 'warning');
             return;
         }
         
-        if (!os) {
-            this.showNotification('Please select an operating system', 'warning');
-            return;
-        }
-        
-        await this.downloadScript(employeeId, os);
+        await this.downloadScript(userId, scriptType);
     }
     
-    async downloadScript(employeeId, os) {
+    async downloadScript(userId, scriptType) {
         try {
-            const response = await fetch(`${this.apiBase}/scripts/${employeeId}/${os}`, {
-                headers: { 'Authorization': `Bearer ${this.token}` }
+            const response = await fetch(`${this.apiBase}/scripts/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({
+                    userUuid: userId,
+                    scriptType
+                })
             });
             
             if (response.ok) {
@@ -360,20 +468,14 @@ class TailscaleApp {
                 a.style.display = 'none';
                 a.href = url;
                 
-                // Get filename from Content-Disposition header
-                const contentDisposition = response.headers.get('Content-Disposition');
-                const filename = contentDisposition 
-                    ? contentDisposition.split('filename=')[1].replace(/"/g, '')
-                    : `install_tailscale_${employeeId}_${os}.${os === 'windows' ? 'ps1' : 'sh'}`;
-                
+                const filename = `tailscale_install_${userId}_${scriptType}.${scriptType === 'powershell' ? 'ps1' : 'bat'}`;
                 a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
                 
-                // Update download counter and recent downloads
                 this.downloadCount++;
-                this.updateRecentDownloads(employeeId, os, filename);
+                this.updateRecentDownloads(userId, scriptType, filename);
                 this.showNotification(`Script downloaded: ${filename}`, 'success');
                 
             } else {
@@ -385,8 +487,10 @@ class TailscaleApp {
         }
     }
     
-    updateRecentDownloads(employeeId, os, filename) {
+    updateRecentDownloads(userId, scriptType, filename) {
         const downloadsDiv = document.getElementById('recent-downloads');
+        if (!downloadsDiv) return;
+        
         const timestamp = new Date().toLocaleString();
         
         const downloadItem = document.createElement('div');
@@ -396,7 +500,7 @@ class TailscaleApp {
                 <span class="font-medium">${filename}</span>
                 <span class="text-sm text-gray-500 ml-2">${timestamp}</span>
             </div>
-            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${os}</span>
+            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${scriptType}</span>
         `;
         
         if (downloadsDiv.querySelector('p')) {
@@ -412,8 +516,16 @@ class TailscaleApp {
         }
     }
     
-    editEmployee(employeeId) {
-        this.showNotification('Employee editing feature coming soon!', 'info');
+    editUser(userId) {
+        this.showNotification('User editing feature coming soon!', 'info');
+    }
+    
+    deleteUser(userId) {
+        this.currentDeleteUserId = userId;
+        const modal = document.getElementById('delete-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
     }
     
     async loadLogs() {
@@ -459,6 +571,17 @@ class TailscaleApp {
             'ERROR': 'bg-red-100 text-red-800'
         };
         return classes[level] || 'bg-gray-100 text-gray-800';
+    }
+    
+    getStatusClass(status) {
+        const classes = {
+            'pending': 'bg-yellow-100 text-yellow-800',
+            'active': 'bg-green-100 text-green-800',
+            'connected': 'bg-blue-100 text-blue-800',
+            'inactive': 'bg-gray-100 text-gray-800',
+            'error': 'bg-red-100 text-red-800'
+        };
+        return classes[status] || 'bg-gray-100 text-gray-800';
     }
     
     async testApi() {
@@ -521,7 +644,10 @@ class TailscaleApp {
     }
     
     hideDeleteModal() {
-        document.getElementById('delete-modal').classList.add('hidden');
+        const modal = document.getElementById('delete-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
     }
     
     async confirmDeleteUser() {
@@ -536,7 +662,7 @@ class TailscaleApp {
             
             if (response.ok) {
                 this.hideDeleteModal();
-                this.loadEmployees();
+                this.loadUsers();
                 this.updateDashboardStats();
                 this.showNotification('User deleted successfully', 'success');
             } else {
@@ -545,6 +671,51 @@ class TailscaleApp {
         } catch (error) {
             this.showNotification('Error deleting user: ' + error.message, 'error');
         }
+    }
+    
+    async loadRecentActivity() {
+        try {
+            const response = await fetch(`${this.apiBase}/logs/recent`, {
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            });
+            
+            if (response.ok) {
+                const activities = await response.json();
+                this.displayRecentActivity(activities);
+            }
+        } catch (error) {
+            console.error('Failed to load recent activity:', error);
+        }
+    }
+    
+    displayRecentActivity(activities) {
+        const activityDiv = document.getElementById('recent-activity');
+        if (!activityDiv) return;
+        
+        if (activities.length === 0) {
+            activityDiv.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-clock text-2xl mb-2"></i>
+                    <p>No recent activity</p>
+                </div>
+            `;
+            return;
+        }
+        
+        activityDiv.innerHTML = activities.map(activity => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-xs text-blue-500 mr-3"></i>
+                    <span class="text-sm">${activity.action}</span>
+                </div>
+                <span class="text-xs text-gray-500">${new Date(activity.created_at).toLocaleString()}</span>
+            </div>
+        `).join('');
+    }
+    
+    loadSettings() {
+        // Settings tab is already loaded in HTML
+        console.log('Settings tab loaded');
     }
 }
 

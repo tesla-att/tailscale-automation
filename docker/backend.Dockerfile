@@ -14,11 +14,9 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
-# Create data directory
-RUN mkdir -p /app/data/{config,logs}
-
-# Set permissions
-RUN chown -R node:node /app
+# Create data directory and set permissions
+RUN mkdir -p /app/data/{config,logs} && \
+    chown -R node:node /app
 
 USER node
 

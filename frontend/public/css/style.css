@@ -23,3 +23,9 @@
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
+
+.status-pending { background-color: #f8fafc; color: #6b7280; }
+.status-active { background-color: #f0fdf4; color: #16a34a; }
+.status-connected { background-color: #e0f7fa; color: #00838f; }
+.status-error { background-color: #fee2e2; color: #dc2626; }
+.status-inactive { background-color: #f8fafc; color: #6b7280; }

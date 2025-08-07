@@ -30,3 +30,5 @@
 [2025-08-06 11:55:29] INFO [HTTP] [IP:::1] GET /health {"userAgent":"curl/8.5.0"}
 [2025-08-06 11:55:44] INFO [HTTP] [IP:::1] POST /api/auth/login {"userAgent":"curl/8.5.0"}
 [2025-08-06 11:55:44] INFO [AUTH] [IP:::1] Admin login successful {"username":"admin"}
+[2025-08-07 05:45:06] INFO [SYSTEM] All services initialized successfully
+[2025-08-07 05:45:22] INFO [SYSTEM] All services initialized successfully
