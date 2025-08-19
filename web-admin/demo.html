@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATT Tailscale Admin Dashboard - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <div class="flex">
+            <!-- Sidebar -->
+            <div class="w-64 bg-white shadow-xl">
+                <div class="flex flex-col h-screen">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg text-white">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="font-bold text-lg text-gray-900">ATT Tailscale</h1>
+                                <p class="text-sm text-gray-500">Admin Dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav class="flex-1 p-4">
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="font-medium">Devices</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                                    </svg>
+                                    <span class="font-medium">Users</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                    <span class="font-medium">Keys</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM11.07 2.82a1.5 1.5 0 012.86 0l1.67 4.49 4.49 1.67a1.5 1.5 0 010 2.86l-4.49 1.67-1.67 4.49a1.5 1.5 0 01-2.86 0L9.4 13.51l-4.49-1.67a1.5 1.5 0 010-2.86l4.49-1.67L11.07 2.82z" />
+                                    </svg>
+                                    <span class="font-medium">Alerts</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Footer -->
+                    <div class="p-4 border-t border-gray-200">
+                        <div class="text-xs text-gray-500 text-center">
+                            v1.0.0 • Tailscale Manager
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1">
+                <!-- Header -->
+                <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Dashboard</h2>
+                            <p class="text-sm text-gray-500">Manage your Tailscale network</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                Online
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <main class="p-6">
+                    <div class="max-w-7xl mx-auto">
+                        <!-- Page Header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900">Devices</h1>
+                                <p class="text-gray-600">Manage and monitor your Tailscale devices</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-sm text-gray-500">
+                                    Total: <span class="font-semibold text-gray-900">5</span>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Online: <span class="font-semibold text-green-600">3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Table -->
+                        <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                            <!-- Search Bar -->
+                            <div class="p-4 border-b border-gray-200">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search devices..."
+                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span>ID</span>
+                                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                </div>
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span>Hostname</span>
+                                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                </div>
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span>User</span>
+                                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                </div>
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span>Status</span>
+                                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                </div>
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Seen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">001</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">laptop-dev</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">admin@att.com</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    Online
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2 minutes ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">002</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">server-prod</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">user@att.com</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    Online
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5 minutes ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">003</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">mobile-phone</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">user@att.com</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                    Offline
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2 hours ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">004</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">gateway-01</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">admin@att.com</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    Online
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1 minute ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">005</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">backup-server</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">backup@att.com</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                    Offline
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">30 minutes ago</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-500">
+                                Showing 5 of 5 entries
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interactive demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality demo
+            const searchInput = document.querySelector('input[type="text"]');
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Navigation demo
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => {
+                        l.className = l.className.replace(/bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md/, 'text-gray-700 hover:bg-gray-100');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.className = this.className.replace(/text-gray-700 hover:bg-gray-100/, 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md');
+                    
+                    // Update page title
+                    const pageTitle = this.querySelector('span').textContent;
+                    document.querySelector('main h1').textContent = pageTitle;
+                    document.querySelector('main p').textContent = `Manage and monitor your Tailscale ${pageTitle.toLowerCase()}`;
+                });
+            });
+
+            console.log('🎉 ATT Tailscale Admin Dashboard Demo Loaded!');
+            console.log('✨ Features: Modern UI, Responsive Design, Interactive Search');
+        });
+    </script>
+</body>
+</html>
