@@ -7,6 +7,10 @@ import Users from "./pages/Users";
 import Keys from "./pages/Keys";
 import Alerts from "./pages/Alerts";
 import PortForwards from "./pages/PortForwards";
+import Analytics from './pages/Analytics';
+import WindowsDeployment from './pages/WindowsDeployment';
+import { useWebSocket } from './hooks/useWebSocket';
+import { ConfigProvider, notification, App as AntApp } from 'antd';
 
 // Icons component
 const Icons = {
@@ -44,6 +48,17 @@ const Icons = {
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 5v6m0 4v6M8 5v6m0 4v6" />
+    </svg>
+  ),
+  Analytics: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  ),
+  WindowsDeployment: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
   ),
   Logo: () => (
@@ -86,6 +101,26 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50 hover:bg-purple-100",
       textColor: "text-purple-700"
+    },
+    { 
+      path: "/analytics", 
+      label: "Analytics", 
+      icon: Icons.Analytics, 
+      badge: "0", 
+      description: "System analytics and metrics",
+      color: "from-teal-500 to-teal-600",
+      bgColor: "bg-teal-50 hover:bg-teal-100",
+      textColor: "text-teal-700"
+    },
+    { 
+      path: "/windows-deployment", 
+      label: "Windows Deployment", 
+      icon: Icons.WindowsDeployment, 
+      badge: "0", 
+      description: "Windows deployment management",
+      color: "from-cyan-500 to-cyan-600",
+      bgColor: "bg-cyan-50 hover:bg-cyan-100",
+      textColor: "text-cyan-700"
     },
     { 
       path: "/port-forwards", 
@@ -382,6 +417,18 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         icon: Icons.Keys,
         color: 'from-purple-500 to-purple-600'
       };
+      case '/analytics': return { 
+        title: 'Analytics', 
+        subtitle: 'System analytics and metrics',
+        icon: Icons.Analytics,
+        color: 'from-teal-500 to-teal-600'
+      };
+      case '/windows-deployment': return { 
+        title: 'Windows Deployment', 
+        subtitle: 'Windows deployment management',
+        icon: Icons.WindowsDeployment,
+        color: 'from-cyan-500 to-cyan-600'
+      };
       case '/port-forwards': return { 
         title: 'Port Forwards', 
         subtitle: 'Port forwarding rules',
@@ -500,10 +547,10 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
   );
 }
 
-function App() {
+const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const { connectionStatus, notifications } = useWebSocket('admin-user');
   // Simulate initial loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -518,56 +565,78 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl text-white shadow-xl mx-auto mb-4 flex items-center justify-center animate-pulse-soft">
-            <Icons.Logo />
+      <ConfigProvider theme={{ token: { colorPrimary: '#1890ff' } }}>
+        <AntApp>
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+            <div className="text-center animate-fade-in">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl text-white shadow-xl mx-auto mb-4 flex items-center justify-center animate-pulse-soft">
+                <Icons.Logo />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">ATT Tailscale</h2>
+              <div className="flex justify-center gap-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">ATT Tailscale</h2>
-          <div className="flex justify-center gap-1">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-          </div>
-        </div>
-      </div>
+        </AntApp>
+      </ConfigProvider>
     );
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-50 via-white to-blue-50/30 animate-fade-in relative overflow-hidden">
-      <div className="flex h-screen h-[100dvh] overflow-hidden relative">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        
-        <div className="flex-1 flex flex-col min-w-0 lg:ml-0 relative overflow-hidden">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
-          
-          <main className="flex-1 overflow-auto mobile-scroll safe-padding-x">
-            <div className="container-responsive responsive-spacing animate-slide-up" style={{
-              padding: 'var(--space-lg) var(--space-md)',
-              minHeight: 'calc(100vh - 80px)', // Account for header height
-            }}>
-              <div className="w-full">
-                <Routes>
-                  <Route path="/" element={<Devices />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/keys" element={<Keys />} />
-                  <Route path="/port-forwards" element={<PortForwards />} />
-                  <Route path="/alerts" element={<Alerts />} />
-                </Routes>
-              </div>
-            </div>
-            
-            {/* Decorative background elements */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-              <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-purple-600/10 rounded-full blur-3xl animate-float"></div>
-              <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-br from-green-400/10 to-blue-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-purple-400/5 to-pink-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
-            </div>
-          </main>
+    <ConfigProvider theme={{ token: { colorPrimary: '#1890ff' } }}>
+      <AntApp>
+        {/* Connection status indicator */}
+        <div className={`fixed top-4 right-4 z-50 px-3 py-1 rounded-full text-xs ${
+          connectionStatus === 'connected' ? 'bg-green-100 text-green-800' :
+          connectionStatus === 'connecting' ? 'bg-yellow-100 text-yellow-800' :
+          'bg-red-100 text-red-800'
+        }`}>
+          {connectionStatus === 'connected' && '🟢 Live'}
+          {connectionStatus === 'connecting' && '🟡 Connecting...'}
+          {connectionStatus === 'disconnected' && '🔴 Disconnected'}
         </div>
-      </div>
-    </div>
+        
+        {/* Existing app content */}
+        <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-50 via-white to-blue-50/30 animate-fade-in relative overflow-hidden">
+          <div className="flex h-screen h-[100dvh] overflow-hidden relative">
+            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            
+            <div className="flex-1 flex flex-col min-w-0 lg:ml-0 relative overflow-hidden">
+              <Header onMenuClick={() => setSidebarOpen(true)} />
+              
+              <main className="flex-1 overflow-auto mobile-scroll safe-padding-x">
+                <div className="container-responsive responsive-spacing animate-slide-up" style={{
+                  padding: 'var(--space-lg) var(--space-md)',
+                  minHeight: 'calc(100vh - 80px)', // Account for header height
+                }}>
+                  <div className="w-full">
+                    <Routes>
+                      <Route path="/" element={<Devices />} />
+                      <Route path="/users" element={<Users />} />
+                      <Route path="/keys" element={<Keys />} />
+                      <Route path="/analytics" element={<Analytics />} />
+                      <Route path="/windows-deployment" element={<WindowsDeployment />} />
+                      <Route path="/port-forwards" element={<PortForwards />} />
+                      <Route path="/alerts" element={<Alerts />} />
+                    </Routes>
+                  </div>
+                </div>
+                
+                {/* Decorative background elements */}
+                <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                  <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-purple-600/10 rounded-full blur-3xl animate-float"></div>
+                  <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-br from-green-400/10 to-blue-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-purple-400/5 to-pink-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+      </AntApp>
+    </ConfigProvider>
   );
 }
 

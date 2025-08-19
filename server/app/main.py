@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.orm import Session
 from .config import settings
 from .db import SessionLocal
-from .routers import devices, users, authkeys, portforwards
+from .routers import devices, users, authkeys, portforwards, analytics, windows_deployment
 from .services.rotate import rotate_if_necessary
+from .websockets import notification_manager
 
 app = FastAPI(title="ATT Tailscale Manager")
 
@@ -23,6 +24,8 @@ app.include_router(users.router)
 app.include_router(authkeys.router)
 app.include_router(authkeys.agent)
 app.include_router(portforwards.router)
+app.include_router(analytics.router)
+app.include_router(windows_deployment.router)
 
 scheduler = AsyncIOScheduler()
 
@@ -48,3 +51,13 @@ async def startup():
 
 @app.get("/healthz")
 def healthz(): return {"ok": True}
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await notification_manager.connect(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Handle incoming messages if needed
+    except WebSocketDisconnect:
+        notification_manager.disconnect(user_id)
