@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Test - Tailscale Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            direction: ltr; 
+            text-align: left; 
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <div id="port-info">Port: <span id="current-port">Unknown</span></div>
+        <div id="direction-info">Direction: <span id="current-direction">Unknown</span></div>
+    </div>
+
+    <div class="test-container">
+        <header class="bg-white shadow-sm border-b border-gray-200 mb-6">
+            <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">Layout Test</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        Online
+                    </span>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                        Button Test
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold mb-4">Layout Test Components</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-medium mb-2">Left-aligned Content</h3>
+                        <p class="text-gray-600">This text should be left-aligned</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <button class="px-3 py-1 bg-blue-100 text-blue-800 rounded">Left</button>
+                            <button class="px-3 py-1 bg-green-100 text-green-800 rounded">Center</button>
+                            <button class="px-3 py-1 bg-red-100 text-red-800 rounded">Right</button>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-medium mb-2">Flex Layout Test</h3>
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Left Side</span>
+                            <span>Right Side</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            </svg>
+                            <span>Icon + Text</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-medium mb-3">Navigation Test</h3>
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            </svg>
+                            <span>Devices</span>
+                        </a>
+                        <a href="#" class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                            </svg>
+                            <span>Users</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Debug info
+        document.getElementById('current-port').textContent = window.location.port || '80';
+        document.getElementById('current-direction').textContent = document.dir || getComputedStyle(document.body).direction;
+        
+        // Test CSS loading
+        console.log('Computed styles for body:', window.getComputedStyle(document.body));
+        console.log('Text direction:', window.getComputedStyle(document.body).direction);
+        console.log('Text align:', window.getComputedStyle(document.body).textAlign);
+        
+        // Check if Tailwind is loaded
+        const testEl = document.createElement('div');
+        testEl.className = 'bg-red-500';
+        document.body.appendChild(testEl);
+        const bgColor = window.getComputedStyle(testEl).backgroundColor;
+        console.log('Tailwind test (should be red):', bgColor);
+        document.body.removeChild(testEl);
+    </script>
+</body>
+</html>
