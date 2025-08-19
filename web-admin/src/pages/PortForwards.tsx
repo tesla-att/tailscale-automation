@@ -19,11 +19,7 @@ interface PortForward {
   machine_id?: string;
 }
 
-interface User {
-  id: string;
-  email: string;
-  display_name?: string;
-}
+
 
 const StatusBadge = ({ active }: { active: boolean }) => (
   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
