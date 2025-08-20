@@ -1,64 +1,59 @@
 import { useEffect, useRef, useState } from 'react';
-import { notification } from 'antd';
 
-interface Notification {
-  type: string;
-  message: string;
-  data?: any;
-  timestamp: string;
-}
+type ConnectionStatus = 'connecting' | 'connected' | 'closing' | 'disconnected';
 
-export const useWebSocket = (userId: string) => {
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+export function useWebSocket<TSend = any, TMsg = any>(url: string) {
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
+  const [lastMessage, setLastMessage] = useState<TMsg | null>(null);
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const connect = () => {
-      const wsUrl = `ws://localhost:8000/ws/${userId}`;
-      ws.current = new WebSocket(wsUrl);
-      setConnectionStatus('connecting');
+    // Ensure a proper ws:// or wss:// URL is passed in
+    ws.current = new WebSocket(url);
+    setConnectionStatus('connecting');
 
-      ws.current.onopen = () => {
-        setConnectionStatus('connected');
-        notification.success({
-          message: 'Connected',
-          description: 'Real-time notifications enabled',
-          duration: 2
-        });
-      };
-
-      ws.current.onmessage = (event) => {
-        const data: Notification = JSON.parse(event.data);
-        setNotifications(prev => [data, ...prev.slice(0, 49)]); // Keep last 50
-
-        // Show notification to user
-        notification.info({
-          message: data.type.replace('_', ' ').toUpperCase(),
-          description: data.message,
-          duration: 4
-        });
-      };
-
-      ws.current.onclose = () => {
-        setConnectionStatus('disconnected');
-        // Auto reconnect after 3 seconds
-        setTimeout(connect, 3000);
-      };
-
-      ws.current.onerror = () => {
-        setConnectionStatus('disconnected');
-      };
+    ws.current.onopen = () => {
+      setIsConnected(true);
+      setConnectionStatus('connected');
     };
 
-    connect();
-
-    return () => {
-      if (ws.current) {
-        ws.current.close();
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setLastMessage(data as TMsg);
+      } catch {
+        // Fallback to raw data if it isn't JSON
+        setLastMessage(event.data as TMsg);
       }
     };
-  }, [userId]);
 
-  return { connectionStatus, notifications };
-};
+    ws.current.onclose = () => {
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+    };
+
+    ws.current.onerror = () => {
+      // error usually followed by close; mark disconnected
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+    };
+
+    return () => {
+      // If we're open/connecting, initiate a clean close
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) ws.current.close();
+      ws.current = null;
+    };
+  }, [url]);
+
+  const sendMessage = (message: TSend) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      const payload = typeof message === 'string' ? message : JSON.stringify(message);
+      ws.current.send(payload);
+    }
+  };
+
+  const isConnecting = connectionStatus === 'connecting';
+
+  return { isConnected, isConnecting, connectionStatus, lastMessage, sendMessage };
+}

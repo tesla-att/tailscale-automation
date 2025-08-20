@@ -1,5 +1,4 @@
-
-import { api } from "../api";
+import { ApiService } from "../services/api";
 import usePoll from "../hooks/usePoll";
 import Table from "../components/Table";
 import { TableLoadingSkeleton } from "../components/LoadingSpinner";
@@ -17,7 +16,7 @@ const StatusBadge = ({ online }: { online: boolean }) => (
 );
 
 export default function Devices() {
-  const { data, err } = usePoll<any[]>(() => api("/api/devices"), 10000);
+  const { data, err } = usePoll<any[]>(() => ApiService.get("/devices"), 10000);
   
   if (err) {
     return (

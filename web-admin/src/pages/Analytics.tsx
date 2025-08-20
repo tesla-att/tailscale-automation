@@ -9,7 +9,7 @@ import {
 import {
   WifiOutlined, SecurityScanOutlined, GlobalOutlined, KeyOutlined
 } from '@ant-design/icons';
-import { api } from '../api';
+import { ApiService } from '../services/api';
 
 interface AnalyticsData {
   deviceMetrics: any;
@@ -32,10 +32,10 @@ const Analytics: React.FC = () => {
       setLoading(true);
       const [deviceMetrics, networkPerformance, securityEvents, usageAnalytics] = 
         await Promise.all([
-          api('/api/analytics/device-metrics'),
-          api('/api/analytics/network-performance'),
-          api('/api/analytics/security-events'),
-          api('/api/analytics/usage-analytics')
+          ApiService.get('/analytics/device-metrics'),
+          ApiService.get('/analytics/network-performance'),
+          ApiService.get('/analytics/security-events'),
+          ApiService.get('/analytics/usage-analytics')
         ]);
 
       setData({

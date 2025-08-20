@@ -8,7 +8,7 @@ import Keys from "./pages/Keys";
 import Alerts from "./pages/Alerts";
 import PortForwards from "./pages/PortForwards";
 import Analytics from './pages/Analytics';
-import WindowsDeployment from './pages/WindowsDeployment';
+import Deployment from './pages/Deployment';
 import { useWebSocket } from './hooks/useWebSocket';
 import { ConfigProvider, App as AntApp } from 'antd';
 
@@ -113,8 +113,8 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       textColor: "text-teal-700"
     },
     { 
-      path: "/windows-deployment", 
-      label: "Windows Deployment", 
+      path: "/deployment", 
+      label: "Deployment", 
       icon: Icons.WindowsDeployment, 
       badge: "0", 
       description: "Windows deployment management",
@@ -423,9 +423,9 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
         icon: Icons.Analytics,
         color: 'from-teal-500 to-teal-600'
       };
-      case '/windows-deployment': return { 
-        title: 'Windows Deployment', 
-        subtitle: 'Windows deployment management',
+      case '/deployment': return { 
+        title: 'Deployment', 
+        subtitle: 'Deployment management',
         icon: Icons.WindowsDeployment,
         color: 'from-cyan-500 to-cyan-600'
       };
@@ -550,7 +550,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { connectionStatus } = useWebSocket('admin-user');
+  const { connectionStatus } = useWebSocket('ws://localhost:8000/ws/admin-user');
   // Simulate initial loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -600,8 +600,8 @@ const App = () => {
         </div>
         
         {/* Existing app content */}
-        <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-50 via-white to-blue-50/30 animate-fade-in relative overflow-hidden">
-          <div className="flex h-screen h-[100dvh] overflow-hidden relative">
+        <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-white to-blue-50/30 animate-fade-in relative overflow-hidden">
+          <div className="flex h-[100dvh] overflow-hidden relative">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             
             <div className="flex-1 flex flex-col min-w-0 lg:ml-0 relative overflow-hidden">
@@ -618,7 +618,7 @@ const App = () => {
                       <Route path="/users" element={<Users />} />
                       <Route path="/keys" element={<Keys />} />
                       <Route path="/analytics" element={<Analytics />} />
-                      <Route path="/windows-deployment" element={<WindowsDeployment />} />
+                      <Route path="/deployment" element={<Deployment />} />
                       <Route path="/port-forwards" element={<PortForwards />} />
                       <Route path="/alerts" element={<Alerts />} />
                     </Routes>

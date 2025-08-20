@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api } from "../api";
+import { ApiService } from "../services/api";
 import Table from "../components/Table";
 import { TableLoadingSkeleton } from "../components/LoadingSpinner";
 import ErrorMessage, { InlineError } from "../components/ErrorMessage";
@@ -72,7 +72,7 @@ export default function Keys() {
 
   const createForUser = async (user_id: string) => {
     try {
-      const k = await api("/api/keys", { method: "POST", body: JSON.stringify({ user_id }) });
+      const k = await ApiService.post("/keys", { user_id });
       // Refresh keys list after creating
       await loadKeys();
       alert(`Created key ${k.masked}`);
@@ -153,7 +153,7 @@ function CreateKeyForm({ onCreate }: { onCreate: (user_id: string) => void }) {
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const data = await api("/api/users");
+        const data = await ApiService.get("/users");
         setUsers(data);
       } catch (err: any) {
         setError("Failed to load users");

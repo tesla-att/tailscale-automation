@@ -1,367 +1,46 @@
 /* stylelint-disable at-rule-no-unknown */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 @layer base {
-  :root {
-    /* Enhanced typography scale */
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-    --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Droid Sans Mono", monospace;
-    
-    /* Responsive typography */
-    --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
-    --text-sm: clamp(0.875rem, 0.8rem + 0.3vw, 1rem);
-    --text-base: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);
-    --text-lg: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
-    --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
-    --text-2xl: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
-    --text-3xl: clamp(1.875rem, 1.6rem + 1vw, 2.25rem);
-    
-    /* Enhanced color palette */
-    --primary-50: #eff6ff;
-    --primary-100: #dbeafe;
-    --primary-200: #bfdbfe;
-    --primary-300: #93c5fd;
-    --primary-400: #60a5fa;
-    --primary-500: #3b82f6;
-    --primary-600: #2563eb;
-    --primary-700: #1d4ed8;
-    --primary-800: #1e40af;
-    --primary-900: #1e3a8a;
-    
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
-    
-    /* Responsive spacing */
-    --space-xs: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
-    --space-sm: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
-    --space-md: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
-    --space-lg: clamp(1rem, 0.8rem + 0.8vw, 1.5rem);
-    --space-xl: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
-    --space-2xl: clamp(2rem, 1.6rem + 1.6vw, 3rem);
-    --space-3xl: clamp(3rem, 2.4rem + 2.4vw, 4rem);
-    
-    /* Animation easing */
-    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
-    --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    
-    /* Z-index scale */
-    --z-dropdown: 1000;
-    --z-modal: 1010;
-    --z-sidebar: 1020;
-    --z-overlay: 1030;
-    --z-tooltip: 1040;
-    
-    /* Breakpoints */
-    --bp-xs: 320px;
-    --bp-sm: 640px;
-    --bp-md: 768px;
-    --bp-lg: 1024px;
-    --bp-xl: 1280px;
-    --bp-2xl: 1536px;
-    
-    /* Container widths */
-    --container-xs: 100%;
-    --container-sm: 640px;
-    --container-md: 768px;
-    --container-lg: 1024px;
-    --container-xl: 1280px;
-    --container-2xl: 1400px;
-  }
-
   * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  html {
-    scroll-behavior: smooth;
-    font-size: clamp(14px, 2vw, 16px);
-    /* Enhanced responsive text scaling */
-    @media (max-width: 320px) {
-      font-size: 13px;
-    }
-    @media (min-width: 1920px) {
-      font-size: 18px;
-    }
-  }
-
-  body {
     margin: 0;
-    font-family: var(--font-sans);
-    line-height: 1.6;
-    color: var(--gray-700);
-    background: linear-gradient(135deg, var(--gray-50) 0%, #ffffff 50%, var(--primary-50) 100%);
-    min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile */
-    overflow-x: hidden;
-    position: relative;
-    
-    /* Enhanced mobile optimization */
-    -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    
-    /* Better font rendering on different devices */
-    text-rendering: optimizeLegibility;
-    font-feature-settings: "kern" 1, "liga" 1;
-    font-variant-ligatures: common-ligatures;
-    
-    /* Prevent horizontal scroll on mobile */
-    @media (max-width: 768px) {
-      position: fixed;
-      width: 100%;
-    }
-  }
-
-  /* Focus styles for accessibility */
-  *:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #f1f5f9;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-}
-
-@layer components {
-  /* Layout Components */
-  .mobile-padding {
-    @apply px-4 py-3 sm:px-6 sm:py-4;
+    padding: 0;
+    box-sizing: border-box;
   }
   
-  .mobile-scroll {
-    @apply overflow-x-auto;
-    scrollbar-width: thin;
+  html {
+    font-size: 16px !important; /* Fixed font size */
+    scroll-behavior: smooth;
   }
   
-  .safe-padding-x {
-    @apply px-safe;
-  }
-  
-  .safe-padding-y {
-    @apply py-safe;
-  }
-  
-  .container-responsive {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  
-  .responsive-spacing {
-    @apply space-y-2 sm:space-y-3;
-  }
-  
-  /* Card Components */
-  .card {
-    @apply bg-white shadow-sm rounded-xl border border-gray-200/80;
-  }
-  
-  .card-glass {
-    @apply bg-white/95 backdrop-blur-sm shadow-lg rounded-xl border border-gray-200/60;
-  }
-  
-  /* Button Components */
-  .btn-ghost {
-    @apply text-gray-600 hover:text-gray-800 hover:bg-gray-100/80 transition-all duration-200;
-  }
-  
-  .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-200;
-  }
-  
-  /* Form Components */
-  .form-input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 
-           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
-  }
-  
-  /* Navigation Components */
-  .nav-link {
-    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium;
-  }
-  
-  .nav-link-active {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg;
-  }
-  
-  .mobile-nav {
-    @apply p-4 sm:p-6;
-  }
-  
-  /* Touch Targets */
-  .touch-target {
-    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
-  }
-  
-  /* Shadows */
-  .shadow-soft {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  }
-  
-  .shadow-medium {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  .shadow-strong {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-  
-  /* Text Rendering */
-  .text-rendering {
-    text-rendering: optimizeLegibility;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px !important; /* Fixed 14px */
+    line-height: 1.5;
+    color: #374151;
+    background-color: #f8fafc;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-}
-
-@layer utilities {
-  /* Animation Utilities */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
+  
+  /* Simple utilities only */
+  .hidden { display: none !important; }
+  .flex { display: flex !important; }
+  .text-sm { font-size: 14px !important; }
+  .text-base { font-size: 16px !important; }
+  .text-lg { font-size: 18px !important; }
+  
+  /* Responsive utilities */
+  @media (max-width: 1024px) {
+    .lg\:hidden { display: none !important; }
   }
   
-  .animate-slide-up {
-    animation: slideUp 0.4s ease-out;
-  }
-  
-  .animate-slide-down {
-    animation: slideDown 0.3s ease-out;
-  }
-  
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
-  }
-  
-  .animate-bounce-in {
-    animation: bounceIn 0.6s ease-out;
-  }
-  
-  .animate-pulse-soft {
-    animation: pulseSoft 2s infinite;
-  }
-  
-  .animate-heartbeat {
-    animation: heartbeat 1.5s infinite;
-  }
-  
-  .animate-shimmer {
-    animation: shimmer 1.5s infinite;
-  }
-  
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.4s ease-out;
-  }
-  
-  /* Keyframe Animations */
+  /* Simple animations */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  
-  @keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  
-  @keyframes scaleIn {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  
-  @keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-    70% { transform: scale(0.9); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  
-  @keyframes pulseSoft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-  }
-  
-  @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.1); }
-    50% { transform: scale(1); }
-    75% { transform: scale(1.05); }
-  }
-  
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-  }
-  
-  @keyframes fadeInUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  
-  /* Safe Area Utilities */
-  .px-safe {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
-  }
-  
-  .py-safe {
-    padding-top: max(1rem, env(safe-area-inset-top));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-  
-  /* Z-Index Scale */
-  .z-dropdown { z-index: 1000; }
-  .z-modal { z-index: 1010; }
-  .z-sidebar { z-index: 1020; }
-  .z-overlay { z-index: 1030; }
-  .z-tooltip { z-index: 1040; }
-  
-  /* Responsive Visibility */
-  .xs\:hidden { display: none; }
-  @media (min-width: 475px) {
-    .xs\:block { display: block; }
-    .xs\:inline { display: inline; }
-    .xs\:hidden { display: none; }
-  }
+  .transition { transition: all 0.2s ease; }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { ApiService } from "../services/api";
 import Table from "../components/Table";
 import { TableLoadingSkeleton } from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -31,7 +31,7 @@ export default function Users() {
     try {
       setLoading(true);
       setError("");
-      const data = await api("/api/users");
+      const data = await ApiService.get("/users");
       setUsers(data);
     } catch (err: any) {
       setError(err.message || "Failed to load users");

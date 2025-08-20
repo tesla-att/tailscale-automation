@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Boolean, Integer, ForeignKey, TIMESTAMP, text
+from sqlalchemy import String, Boolean, Integer, ForeignKey, TIMESTAMP, text, Text, JSON
 from uuid import uuid4
 from .db import Base
 
@@ -74,3 +74,45 @@ class Event(Base):
     type: Mapped[str]
     message: Mapped[str]
     created_at: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), server_default=text("now()"))
+
+class Device(Base):
+    __tablename__ = "devices"
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=pk)
+    ts_device_id: Mapped[str | None] = mapped_column(String, unique=True)
+    name: Mapped[str]
+    hostname: Mapped[str | None]
+    ip: Mapped[str | None]
+    os: Mapped[str | None]
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String, default="offline")  # online, offline
+    last_seen: Mapped[str | None] = mapped_column(TIMESTAMP(timezone=True))
+    tags: Mapped[str | None] = mapped_column(Text)  # JSON text
+    created_at: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), server_default=text("now()"))
+    updated_at: Mapped[str | None] = mapped_column(TIMESTAMP(timezone=True))
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=pk)
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    action: Mapped[str]
+    resource: Mapped[str | None]
+    resource_id: Mapped[str | None]
+    details: Mapped[str | None] = mapped_column(Text)
+    ip_address: Mapped[str | None]
+    timestamp: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), server_default=text("now()"))
+
+class DeploymentLog(Base):
+    __tablename__ = "deployment_logs"
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=pk)
+    action: Mapped[str]
+    status: Mapped[str]  # building, completed, failed
+    details: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), server_default=text("now()"))
+
+class SystemMetrics(Base):
+    __tablename__ = "system_metrics"
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=pk)
+    metric_name: Mapped[str]
+    metric_value: Mapped[str | None]
+    metadata: Mapped[str | None] = mapped_column(Text)  # JSON text
+    timestamp: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), server_default=text("now()"))

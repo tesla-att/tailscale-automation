@@ -3,8 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Fixed viewport - no user scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ATT Tailscale Admin Dashboard</title>
+    
+    <style>
+      /* Critical CSS reset */
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { font-size: 16px !important; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px !important;
+        line-height: 1.5;
+      }
+      input, select, textarea { font-size: 16px !important; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

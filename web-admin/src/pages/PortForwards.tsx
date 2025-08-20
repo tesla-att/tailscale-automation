@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { api } from "../api";
+import { ApiService } from "../services/api";
 import usePoll from "../hooks/usePoll";
 import Table from "../components/Table";
 import { TableLoadingSkeleton } from "../components/LoadingSpinner";
@@ -69,13 +69,10 @@ const CreatePortForwardModal = ({
     setError('');
 
     try {
-      await api('/api/port-forwards', {
-        method: 'POST',
-        body: JSON.stringify({
+      await ApiService.post('/port-forwards', {
           ...formData,
           source_port: parseInt(formData.source_port),
-          target_port: parseInt(formData.target_port)
-        })
+        target_port: parseInt(formData.target_port)
       });
       onSuccess();
       onClose();
@@ -220,12 +217,12 @@ const CreatePortForwardModal = ({
 };
 
 export default function PortForwards() {
-  const { data, err, refetch } = usePoll<PortForward[]>(() => api("/api/port-forwards"), 10000);
+  const { data, err, refetch } = usePoll<PortForward[]>(() => ApiService.get("/port-forwards"), 10000);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   const handleToggle = async (id: string) => {
     try {
-      await api(`/api/port-forwards/${id}/toggle`, { method: 'POST' });
+      await ApiService.post(`/port-forwards/${id}/toggle`, {});
       refetch();
     } catch (err: any) {
       alert(`Failed to toggle port forward: ${err.message}`);
@@ -236,7 +233,7 @@ export default function PortForwards() {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
     
     try {
-      await api(`/api/port-forwards/${id}`, { method: 'DELETE' });
+      await ApiService.post(`/port-forwards/${id}/delete`, {});
       refetch();
     } catch (err: any) {
       alert(`Failed to delete port forward: ${err.message}`);

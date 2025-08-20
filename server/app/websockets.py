@@ -1,52 +1,38 @@
 from fastapi import WebSocket, WebSocketDisconnect
-from typing import Dict, List
+from typing import List
 import json
 import asyncio
 from datetime import datetime
 
-class NotificationManager:
+class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-        self.user_subscriptions: Dict[str, List[str]] = {}
+        self.active_connections: List[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket, user_id: str):
+    async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[user_id] = websocket
-        print(f"User {user_id} connected")
+        self.active_connections.append(websocket)
 
-    def disconnect(self, user_id: str):
-        if user_id in self.active_connections:
-            del self.active_connections[user_id]
-        if user_id in self.user_subscriptions:
-            del self.user_subscriptions[user_id]
-        print(f"User {user_id} disconnected")
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
 
-    async def send_notification(self, user_id: str, notification: dict):
-        if user_id in self.active_connections:
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
             try:
-                await self.active_connections[user_id].send_text(
-                    json.dumps({
-                        **notification,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                )
+                await connection.send_text(json.dumps(message))
             except:
-                self.disconnect(user_id)
+                await self.disconnect(connection)
 
-    async def broadcast_notification(self, notification: dict):
-        disconnected = []
-        for user_id, websocket in self.active_connections.items():
-            try:
-                await websocket.send_text(
-                    json.dumps({
-                        **notification,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                )
-            except:
-                disconnected.append(user_id)
-        
-        for user_id in disconnected:
-            self.disconnect(user_id)
+manager = ConnectionManager()
 
-notification_manager = NotificationManager()
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Handle incoming messages if needed
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
