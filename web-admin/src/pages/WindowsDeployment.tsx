@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Button, Table, Steps, Modal, Form, Select, Switch, Input,
-  Space, Tag, Progress, notification, Divider, Alert, Spin
+  Space, Tag, Progress, notification, Divider, Alert
 } from 'antd';
 import {
   WindowsOutlined, DownloadOutlined, PlayCircleOutlined,
-  CheckCircleOutlined, ExclamationCircleOutlined, ClockCircleOutlined
+  CheckCircleOutlined, ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { api } from '../api';
 
@@ -34,7 +34,7 @@ const WindowsDeployment: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [deployModalVisible, setDeployModalVisible] = useState(false);
   const [scriptModalVisible, setScriptModalVisible] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep] = useState(0);
   const [deploymentScript, setDeploymentScript] = useState('');
   const [form] = Form.useForm();
 
@@ -190,7 +190,7 @@ const WindowsDeployment: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       render: (status: string) => {
-        const colors = {
+        const colors: Record<string, string> = {
           started: 'processing',
           completed: 'success',
           failed: 'error'
@@ -280,7 +280,7 @@ const WindowsDeployment: React.FC = () => {
           loading={loading}
           rowSelection={{
             selectedRowKeys: selectedDevices,
-            onChange: setSelectedDevices,
+            onChange: (selectedRowKeys) => setSelectedDevices(selectedRowKeys as string[]),
             getCheckboxProps: (record) => ({
               disabled: record.status !== 'discovered'
             })

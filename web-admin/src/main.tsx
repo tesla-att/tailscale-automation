@@ -10,7 +10,7 @@ import PortForwards from "./pages/PortForwards";
 import Analytics from './pages/Analytics';
 import WindowsDeployment from './pages/WindowsDeployment';
 import { useWebSocket } from './hooks/useWebSocket';
-import { ConfigProvider, notification, App as AntApp } from 'antd';
+import { ConfigProvider, App as AntApp } from 'antd';
 
 // Icons component
 const Icons = {
@@ -550,7 +550,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { connectionStatus, notifications } = useWebSocket('admin-user');
+  const { connectionStatus } = useWebSocket('admin-user');
   // Simulate initial loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Card, Row, Col, Statistic, Progress, Table, Tag, Space, Spin, Alert
+  Card, Row, Col, Statistic, Progress, Table, Tag, Spin, Alert
 } from 'antd';
 import {
-  LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
+  AreaChart, Area, PieChart, Pie, Cell,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import {
@@ -169,7 +169,7 @@ const Analytics: React.FC = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
-                  {deviceTypeData.map((entry, index) => (
+                  {deviceTypeData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
