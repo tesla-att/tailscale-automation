@@ -7,7 +7,7 @@ ATT Tailscale Management là hệ thống quản lý Tailscale với giao diện
 ### Kiến trúc hệ thống:
 - **Backend**: FastAPI (Python) - Port 8000
 - **Frontend**: React + Vite - Port 3000  
-- **Database**: PostgreSQL 16 - Port 5433
+- **Database**: PostgreSQL 16 - Port 5432
 - **Container**: Docker + Docker Compose
 
 ## BƯỚC 1: KIỂM TRA TRƯỚC KHI KHỞI ĐỘNG
@@ -175,7 +175,7 @@ docker compose logs -f
 docker compose logs db
 
 # Kiểm tra port conflicts
-sudo netstat -tulpn | grep 5433
+sudo netstat -tulpn | grep 5432
 
 # Reset database nếu cần
 docker compose down -v

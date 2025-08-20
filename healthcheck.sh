@@ -192,7 +192,7 @@ else
 fi
 
 # Check port availability
-ports=("3000" "8000" "5433")
+ports=("3000" "8000" "5432")
 for port in "${ports[@]}"; do
     if netstat -tuln 2>/dev/null | grep -q ":$port "; then
         print_status "Port $port: Đang được sử dụng"

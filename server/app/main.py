@@ -23,8 +23,8 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(devices.router, prefix="/api/devices", tags=["devices"])
-app.include_router(authkeys.router, prefix="/api/auth-keys", tags=["auth-keys"])
-app.include_router(authkeys.agent, prefix="/api/auth-keys/agent", tags=["auth-keys-agent"])
+app.include_router(authkeys.router, prefix="/api/authkeys", tags=["authkeys"])
+app.include_router(authkeys.agent, prefix="/api/authkeys/agent", tags=["authkeys-agent"]) # TODO: remove this
 app.include_router(portforwards.router, prefix="/api/port-forwards", tags=["port-forwards"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(deployment.router, prefix="/api/deployment", tags=["deployment"])

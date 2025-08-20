@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from ..db import SessionLocal
+from ..db import get_db
 from ..models import User, Machine, PortForward, Event
 from ..schemas import CreatePortForwardReq, PortForwardOut, UpdatePortForwardReq
 from ..services.portforward import PortForwardManager
@@ -9,13 +9,6 @@ from ..utils.logging import get_logger
 
 router = APIRouter(prefix="/api/port-forwards", tags=["port-forwards"])
 log = get_logger(__name__)
-
-def get_db():
-    db = SessionLocal()
-    try: 
-        yield db
-    finally: 
-        db.close()
 
 @router.get("", response_model=List[PortForwardOut])
 async def list_port_forwards(db: Session = Depends(get_db)):

@@ -7,7 +7,7 @@ from ..tailscale import create_auth_key, revoke_auth_key
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 
-router = APIRouter(prefix="/api/keys", tags=["auth-keys"])
+router = APIRouter(prefix="/api/keys", tags=["authkeys"])
 
 class AuthKeyCreate(BaseModel):
     description: str

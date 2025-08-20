@@ -124,7 +124,7 @@ echo
 # 8. Security Checks
 echo "=== SECURITY CHECKS ==="
 echo "Open ports:"
-netstat -tulpn | grep LISTEN | grep -E ':(3000|8000|5433)'
+netstat -tulpn | grep LISTEN | grep -E ':(3000|8000|5432)'
 echo
 
 echo "File permissions:"
