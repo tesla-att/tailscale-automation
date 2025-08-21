@@ -9,7 +9,7 @@ from datetime import datetime
 from ..db import get_db
 from ..models import DeploymentLog, AuthKey
 from ..utils.agent_builder import build_windows_agent
-from ..websockets import manager
+from ..websockets import notification_manager
 
 router = APIRouter()
 
@@ -71,7 +71,7 @@ async def build_agent_background(config: Dict, db: Session):
         db.commit()
         
         # Broadcast update
-        await manager.broadcast({
+        await notification_manager.broadcast({
             "type": "deployment_update",
             "data": {
                 "action": "build_agent",
@@ -85,7 +85,7 @@ async def build_agent_background(config: Dict, db: Session):
         log.details = f"Build failed: {str(e)}"
         db.commit()
         
-        await manager.broadcast({
+        await notification_manager.broadcast({
             "type": "deployment_update",
             "data": {
                 "action": "build_agent",

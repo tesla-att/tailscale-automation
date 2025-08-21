@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Button, Table, Steps, Modal, Form, Select, Switch, Input,
-  Space, Tag, Progress, notification, Divider, Alert
+  Space, Tag, Progress, Divider, Alert, App
 } from 'antd';
 import {
   WindowsOutlined, DownloadOutlined, PlayCircleOutlined,
@@ -28,6 +28,7 @@ interface DeploymentConfig {
 }
 
 const Deployment: React.FC = () => {
+  const { notification } = App.useApp();
   const [devices, setDevices] = useState<WindowsDevice[]>([]);
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
   const [deployments, setDeployments] = useState<any[]>([]);

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from ..tailscale import list_devices
 from ..websockets import notification_manager
 
-router = APIRouter(prefix="/api/devices", tags=["devices"])
+router = APIRouter()
 
 # @router.get("")
 # async def devices():

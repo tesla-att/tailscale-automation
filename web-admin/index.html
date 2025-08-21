@@ -3,24 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- Fixed viewport - no user scaling -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>ATT Tailscale Admin Dashboard</title>
     
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="http://localhost:8000" />
+    
+    <!-- Critical CSS for performance -->
     <style>
-      /* Critical CSS reset */
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html { font-size: 16px !important; }
-      body { 
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      /* Critical loading styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        font-size: 16px !important;
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 14px !important;
         line-height: 1.5;
+        color: #374151;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
       }
-      input, select, textarea { font-size: 16px !important; }
+      
+      /* Prevent zoom on iOS */
+      input, select, textarea, button {
+        font-size: 16px !important;
+      }
+      
+      /* Loading state */
+      #root {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      
+      /* Safe area support */
+      @supports (padding: max(0px)) {
+        body {
+          padding-left: env(safe-area-inset-left);
+          padding-right: env(safe-area-inset-right);
+        }
+      }
+      
+      /* Hide scrollbar during initial load */
+      body:not(.loaded) {
+        overflow: hidden;
+      }
+      
+      /* Performance optimizations */
+      * {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Mark body as loaded after script execution -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('loaded');
+      });
+    </script>
   </body>
 </html>

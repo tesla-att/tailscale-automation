@@ -12,19 +12,26 @@ from datetime import datetime, timezone
 
 app = FastAPI(title="ATT Tailscale Manager API")
 
-# Add CORS middleware
+# Add CORS middleware  
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Frontend URLs
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://localhost:5173",
+        "http://localhost:4173",  # Vite preview
+        "http://127.0.0.1:3000",
+        "http://0.0.0.0:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(devices.router, prefix="/api/devices", tags=["devices"])
 app.include_router(authkeys.router, prefix="/api/authkeys", tags=["authkeys"])
-app.include_router(authkeys.agent, prefix="/api/authkeys/agent", tags=["authkeys-agent"]) # TODO: remove this
+# app.include_router(authkeys.agent, prefix="/api/authkeys/agent", tags=["authkeys-agent"]) # TODO: remove this - REMOVED: agent router doesn't exist
 app.include_router(portforwards.router, prefix="/api/port-forwards", tags=["port-forwards"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(deployment.router, prefix="/api/deployment", tags=["deployment"])
@@ -52,37 +59,16 @@ async def startup():
     scheduler.add_job(_rotate_job, "interval", minutes=settings.ROTATE_CHECK_INTERVAL_MIN, id="rotate")
     scheduler.start()
 
-# WebSocket connections
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: dict):
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(json.dumps(message))
-            except:
-                self.disconnect(connection)
-
-manager = ConnectionManager()
-
+# WebSocket endpoint - using notification_manager from websockets module
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            # Keep connection alive
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+async def websocket_endpoint_handler(websocket: WebSocket):
+    print(f"WebSocket connection attempt from: {websocket.client}")
+    await websocket_endpoint(websocket)
 
 @app.get("/healthz")
 async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+@app.get("/api/healthz")
+async def api_health_check():
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}

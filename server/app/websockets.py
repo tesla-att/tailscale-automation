@@ -24,15 +24,38 @@ class ConnectionManager:
                 await connection.send_text(json.dumps(message))
             except:
                 await self.disconnect(connection)
+    
+    async def broadcast_notification(self, message: dict):
+        """Alias for broadcast method to maintain compatibility"""
+        await self.broadcast(message)
 
-manager = ConnectionManager()
+notification_manager = ConnectionManager()
 
 async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
     try:
+        await notification_manager.connect(websocket)
+        print(f"WebSocket connected: {websocket.client}")
+        
         while True:
-            data = await websocket.receive_text()
-            # Handle incoming messages if needed
-            await asyncio.sleep(1)
+            try:
+                # Send periodic heartbeat
+                await notification_manager.send_personal_message(
+                    json.dumps({"type": "heartbeat", "timestamp": datetime.now().isoformat()}), 
+                    websocket
+                )
+                await asyncio.sleep(30)  # Heartbeat every 30 seconds
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                print(f"WebSocket error: {e}")
+                break
+                
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        print(f"WebSocket disconnected: {websocket.client}")
+        notification_manager.disconnect(websocket)
+    except Exception as e:
+        print(f"WebSocket connection error: {e}")
+        try:
+            notification_manager.disconnect(websocket)
+        except:
+            pass

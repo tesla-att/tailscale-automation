@@ -16,7 +16,7 @@ const StatusBadge = ({ online }: { online: boolean }) => (
 );
 
 export default function Devices() {
-  const { data, err } = usePoll<any[]>(() => ApiService.get("/devices"), 10000);
+  const { data, err, isLoading, refetch } = usePoll<{devices: any[]}>(() => ApiService.getDevices(), 10000);
   
   if (err) {
     return (
@@ -30,13 +30,13 @@ export default function Devices() {
         <ErrorMessage 
           title="Failed to load devices"
           message={err}
-          onRetry={() => window.location.reload()}
+          onRetry={refetch}
         />
       </div>
     );
   }
 
-  if (!data) {
+  if (isLoading && !data) {
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
@@ -63,12 +63,13 @@ export default function Devices() {
     { key: "last_seen", label: "Last Seen", sortable: true },
   ];
 
-  const rows = data.map((d: any) => ({
+  const devices = data?.devices || [];
+  const rows = devices.map((d: any) => ({
     id: d.id,
     hostname: d.hostname || d.name || "-",
     user: d.user || "-",
-    online: d.online !== undefined ? d.online : Math.random() > 0.3, // Mock data
-    last_seen: d.last_seen || new Date().toLocaleDateString(),
+    online: d.lastSeen ? (new Date().getTime() - new Date(d.lastSeen).getTime()) < 300000 : false, // Online if seen within 5 minutes
+    last_seen: d.lastSeen ? new Date(d.lastSeen).toLocaleString() : "Never",
   }));
 
   return (
@@ -87,6 +88,27 @@ export default function Devices() {
               {rows.filter(r => r.online).length}
             </span>
           </div>
+          <button
+            onClick={refetch}
+            disabled={isLoading}
+            className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Loading...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+              </>
+            )}
+          </button>
         </div>
       </div>
       

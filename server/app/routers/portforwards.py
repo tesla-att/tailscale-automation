@@ -7,7 +7,7 @@ from ..schemas import CreatePortForwardReq, PortForwardOut, UpdatePortForwardReq
 from ..services.portforward import PortForwardManager
 from ..utils.logging import get_logger
 
-router = APIRouter(prefix="/api/port-forwards", tags=["port-forwards"])
+router = APIRouter()
 log = get_logger(__name__)
 
 @router.get("", response_model=List[PortForwardOut])

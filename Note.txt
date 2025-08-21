@@ -11,3 +11,23 @@ pip install sqlalchemy
 pip install pydantic_settings
 pip install httpx
 uvicorn your_module:app --reload --host 0.0.0.0 --port 8000
+
+
+
+cd /root/tailscale-automation
+
+# Dừng containers
+docker compose down
+
+# Rebuild API container với models.py đã sửa
+docker compose build api
+
+# Khởi động database
+docker compose up -d db
+sleep 30
+
+# Chạy migration
+docker compose run --rm api alembic upgrade head
+
+# Kiểm tra migration thành công
+docker compose run --rm api alembic current

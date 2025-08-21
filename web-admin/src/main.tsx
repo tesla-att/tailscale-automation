@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from "react-router-dom";
 import "./index.css";
-import Devices from "./pages/Devices";
+import EnhancedDevices from "./pages/EnhancedDevices";
 import Users from "./pages/Users";
 import Keys from "./pages/Keys";
 import Alerts from "./pages/Alerts";
 import PortForwards from "./pages/PortForwards";
 import Analytics from './pages/Analytics';
 import Deployment from './pages/Deployment';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { useWebSocket } from './hooks/useWebSocket';
-import { ConfigProvider, App as AntApp } from 'antd';
+import { ConfigProvider, App as AntApp, Alert } from 'antd';
+import { ApiService } from './services/api';
 
 // Icons component
 const Icons = {
@@ -550,7 +552,21 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { connectionStatus } = useWebSocket('ws://localhost:8000/ws/admin-user');
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const { connectionStatus, error: wsError, reconnect } = useWebSocket('ws://localhost:8000/ws');
+  
+  // Check backend connectivity
+  useEffect(() => {
+    const checkBackend = async () => {
+      const isRunning = await ApiService.isServerRunning();
+      setBackendStatus(isRunning ? 'connected' : 'disconnected');
+    };
+    
+    checkBackend();
+    const interval = setInterval(checkBackend, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+  
   // Simulate initial loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -588,15 +604,50 @@ const App = () => {
   return (
     <ConfigProvider theme={{ token: { colorPrimary: '#1890ff' } }}>
       <AntApp>
+        {/* Backend status alert */}
+        {backendStatus === 'disconnected' && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-2xl">
+            <Alert
+              message="Backend Server Not Running"
+              description={
+                <div className="space-y-2">
+                  <p>The API server is not responding. Please start the backend services:</p>
+                  <div className="bg-gray-100 p-2 rounded text-sm font-mono">
+                    cd /root/tailscale-automation<br/>
+                    ./start-system.sh
+                  </div>
+                  <p className="text-xs">Or use: <code>docker compose up -d</code></p>
+                </div>
+              }
+              type="error"
+              showIcon
+              closable
+            />
+          </div>
+        )}
+
         {/* Connection status indicator */}
-        <div className={`fixed top-4 right-4 z-50 px-3 py-1 rounded-full text-xs ${
+        <div className={`fixed top-4 right-4 z-50 px-3 py-1 rounded-full text-xs flex items-center gap-2 ${
           connectionStatus === 'connected' ? 'bg-green-100 text-green-800' :
           connectionStatus === 'connecting' ? 'bg-yellow-100 text-yellow-800' :
           'bg-red-100 text-red-800'
         }`}>
           {connectionStatus === 'connected' && '🟢 Live'}
           {connectionStatus === 'connecting' && '🟡 Connecting...'}
-          {connectionStatus === 'disconnected' && '🔴 Disconnected'}
+          {connectionStatus === 'disconnected' && (
+            <>
+              🔴 Disconnected
+              {wsError && (
+                <button 
+                  onClick={reconnect}
+                  className="ml-1 px-2 py-0.5 bg-red-200 hover:bg-red-300 rounded text-xs"
+                  title={wsError}
+                >
+                  Retry
+                </button>
+              )}
+            </>
+          )}
         </div>
         
         {/* Existing app content */}
@@ -614,7 +665,7 @@ const App = () => {
                 }}>
                   <div className="w-full">
                     <Routes>
-                      <Route path="/" element={<Devices />} />
+                      <Route path="/" element={<EnhancedDevices />} />
                       <Route path="/users" element={<Users />} />
                       <Route path="/keys" element={<Keys />} />
                       <Route path="/analytics" element={<Analytics />} />
@@ -634,12 +685,24 @@ const App = () => {
               </main>
             </div>
           </div>
+          
+          {/* Keyboard shortcuts */}
+          <KeyboardShortcuts />
         </div>
       </AntApp>
     </ConfigProvider>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode><BrowserRouter><App /></BrowserRouter></React.StrictMode>
-);
+const rootElement = document.getElementById("root")!;
+if (!rootElement._reactRootContainer) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+  rootElement._reactRootContainer = root;
+}

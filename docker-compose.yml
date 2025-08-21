@@ -19,8 +19,19 @@ services:
     ports: ["3000:3000"]
     environment:
       - VITE_API=http://localhost:8000
+      - NODE_ENV=development
     depends_on: [api]
+    volumes:
+      - ./web-admin/src:/app/src:ro
+      - ./web-admin/public:/app/public:ro
+      - /app/node_modules
     command: npm run dev -- --host 0.0.0.0 --port 3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   dbdata:

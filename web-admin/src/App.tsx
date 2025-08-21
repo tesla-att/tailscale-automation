@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Users, Shield, Activity, Server, Download, Bell, Settings, 
-  BarChart3, Globe, Terminal, RefreshCw, AlertCircle, CheckCircle,
-  Eye, EyeOff, Copy, Trash2, Plus, Search, Filter, Upload,
-  Monitor, Cpu, HardDrive, Wifi, Clock, Zap, TrendingUp, Loader2
+  Users, Shield, Activity, Bell, Settings, 
+  BarChart3, Globe, RefreshCw, AlertCircle,
+  Copy, Plus, Search,
+  Monitor, TrendingUp, Loader2
 } from 'lucide-react';
 
 // Types
@@ -1041,7 +1041,7 @@ export default function TailscaleAdminDashboard() {
         </div>
       )}
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes slide-in {
           from {
             transform: translateX(100%);
@@ -1056,7 +1056,7 @@ export default function TailscaleAdminDashboard() {
         .animate-slide-in {
           animation: slide-in 0.3s ease-out;
         }
-      `}</style>
+      `}} />
     </div>
   );
 }

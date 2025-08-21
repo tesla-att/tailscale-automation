@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, memo, useCallback } from "react";
 
 interface TableColumn {
   key: string;
@@ -37,7 +37,7 @@ const Icons = {
   ),
 };
 
-export default function Table({ columns, rows, searchable = true, className = "" }: TableProps) {
+const Table = memo(function Table({ columns, rows, searchable = true, className = "" }: TableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
@@ -82,7 +82,7 @@ export default function Table({ columns, rows, searchable = true, className = ""
     return filtered;
   }, [rows, searchTerm, sortConfig, normalizedColumns, searchable]);
 
-  const handleSort = (columnKey: string) => {
+  const handleSort = useCallback((columnKey: string) => {
     const column = normalizedColumns.find(col => col.key === columnKey);
     if (!column?.sortable) return;
 
@@ -97,7 +97,7 @@ export default function Table({ columns, rows, searchable = true, className = ""
         return { key: columnKey, direction: 'asc' };
       }
     });
-  };
+  }, [normalizedColumns]);
 
   const getSortIcon = (columnKey: string) => {
     if (sortConfig?.key !== columnKey) return null;
@@ -241,4 +241,6 @@ export default function Table({ columns, rows, searchable = true, className = ""
       )}
     </div>
   );
-}
+});
+
+export default Table;

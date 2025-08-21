@@ -77,7 +77,7 @@ def upgrade():
         sa.Column('id', sa.String(), nullable=False),
         sa.Column('metric_name', sa.String(), nullable=False),
         sa.Column('metric_value', sa.String(), nullable=True),
-        sa.Column('metadata', sa.Text(), nullable=True),
+        sa.Column('meta_data', sa.Text(), nullable=True),
         sa.Column('timestamp', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )

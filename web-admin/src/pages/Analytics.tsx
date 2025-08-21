@@ -30,13 +30,34 @@ const Analytics: React.FC = () => {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const [deviceMetrics, networkPerformance, securityEvents, usageAnalytics] = 
-        await Promise.all([
-          ApiService.get('/analytics/device-metrics'),
-          ApiService.get('/analytics/network-performance'),
-          ApiService.get('/analytics/security-events'),
-          ApiService.get('/analytics/usage-analytics')
-        ]);
+      // Get overview data from backend
+      const overview = await ApiService.get('/analytics/overview');
+      
+      // Generate mock data for charts based on overview
+      const deviceMetrics = {
+        totalDevices: overview.totalDevices || 0,
+        onlineDevices: overview.activeDevices || 0,
+        offlineDevices: (overview.totalDevices || 0) - (overview.activeDevices || 0),
+        uptime: overview.avgUptime || 0
+      };
+      
+      const networkPerformance = {
+        dataTransfer: overview.dataTransfer || "0 TB",
+        latency: "12ms", // Mock data
+        throughput: "1.2 Gbps" // Mock data
+      };
+      
+      const securityEvents = {
+        alertsToday: overview.alertsToday || 0,
+        totalEvents: 42, // Mock data
+        resolved: 38 // Mock data
+      };
+      
+      const usageAnalytics = {
+        activeUsers: overview.activeUsers || 0,
+        totalUsers: overview.totalUsers || 0,
+        deploymentsToday: overview.deploymentsToday || 0
+      };
 
       setData({
         deviceMetrics,

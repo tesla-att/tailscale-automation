@@ -5,7 +5,7 @@ import asyncio
 import json
 from datetime import datetime
 
-router = APIRouter(prefix="/api/deployment", tags=["deployment"])
+router = APIRouter()
 
 class WindowsDevice(BaseModel):
     hostname: str

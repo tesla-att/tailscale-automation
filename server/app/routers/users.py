@@ -6,7 +6,7 @@ from ..models import User
 from pydantic import BaseModel
 from datetime import datetime
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter()
 
 class UserCreate(BaseModel):
     name: str
