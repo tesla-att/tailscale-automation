@@ -14,7 +14,7 @@ fix_database() {
     read -p "Remove database volume? This will delete all data! (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker volume rm tailscale-manager_dbdata
+        docker volume rm tailscale-automation_dbdata
     fi
     
     # Restart database

@@ -5,6 +5,7 @@ from ..db import get_db
 from ..models import User
 from pydantic import BaseModel
 from datetime import datetime
+from ..models import Machine
 
 router = APIRouter()
 
@@ -13,7 +14,7 @@ class UserCreate(BaseModel):
     email: str
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     name: str
     email: str
     status: str
@@ -29,13 +30,16 @@ async def list_users(db: Session = Depends(get_db)):
     # Convert to response format
     user_list = []
     for user in users:
+        # Count devices for this user
+        device_count = db.query(Machine).filter(Machine.user_id == user.id).count()
+        
         user_list.append(UserResponse(
             id=user.id,
             name=user.name,
             email=user.email,
             status="active" if user.is_active else "inactive",
             lastLogin=user.last_login.isoformat() if user.last_login else datetime.utcnow().isoformat(),
-            devices=0,  # TODO: Count devices for this user
+            devices=device_count,
             created_at=user.created_at.isoformat() if user.created_at else datetime.utcnow().isoformat()
         ))
     

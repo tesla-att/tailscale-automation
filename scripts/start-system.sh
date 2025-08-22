@@ -31,7 +31,7 @@ print_error() {
 
 # Check if we're in the right directory
 if [ ! -f "docker-compose.yml" ]; then
-    print_error "Không tìm thấy docker-compose.yml. Vui lòng chạy script từ thư mục /opt/tailscale-manager"
+    print_error "Không tìm thấy docker-compose.yml. Vui lòng chạy script từ thư mục /opt/tailscale-automation"
     exit 1
 fi
 

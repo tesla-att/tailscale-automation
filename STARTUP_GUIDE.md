@@ -27,7 +27,7 @@ docker compose version
 
 ### 1.2 Kiểm tra thư mục dự án
 ```bash
-cd /opt/tailscale-manager
+cd /opt/tailscale-automation
 ls -la
 
 # Cấu trúc thư mục cần có:
@@ -40,17 +40,17 @@ ls -la
 ### 1.3 Kiểm tra cấu hình môi trường
 ```bash
 # Kiểm tra file .env trong server
-ls -la /opt/tailscale-manager/server/.env
+ls -la /opt/tailscale-automation/server/.env
 
 # Nếu không có, copy từ .env.example
-cp /opt/tailscale-manager/server/.env.example /opt/tailscale-manager/server/.env
+cp /opt/tailscale-automation/server/.env.example /opt/tailscale-automation/server/.env
 ```
 
 ## BƯỚC 2: KHỞI ĐỘNG HỆ THỐNG
 
 ### 2.1 Dọn dẹp containers cũ (nếu cần)
 ```bash
-cd /opt/tailscale-manager
+cd /opt/tailscale-automation
 
 # Dừng tất cả containers
 docker compose down
@@ -59,7 +59,7 @@ docker compose down
 docker compose down --remove-orphans
 
 # Kiểm tra không có containers nào chạy
-docker ps -a | grep tailscale-manager
+docker ps -a | grep tailscale-automation
 ```
 
 ### 2.2 Khởi động database trước
@@ -179,14 +179,14 @@ sudo netstat -tulpn | grep 5432
 
 # Reset database nếu cần
 docker compose down -v
-docker volume rm tailscale-manager_dbdata
+docker volume rm tailscale-automation_dbdata
 docker compose up -d db
 ```
 
 ### 5.2 Nếu API không khởi động
 ```bash
 # Kiểm tra file .env
-cat /opt/tailscale-manager/server/.env
+cat /opt/tailscale-automation/server/.env
 
 # Kiểm tra logs API chi tiết
 docker compose logs api
@@ -215,7 +215,7 @@ docker compose exec web npm list
 docker compose down -v
 
 # Xóa images cũ
-docker image rm tailscale-manager-api tailscale-manager-web
+docker image rm tailscale-automation-api tailscale-automation-web
 
 # Rebuild và khởi động lại
 docker compose build
@@ -226,7 +226,7 @@ docker compose up -d
 
 ### 6.1 Tạo systemd service
 ```bash
-sudo nano /etc/systemd/system/tailscale-manager.service
+sudo nano /etc/systemd/system/tailscale-automation.service
 ```
 
 Nội dung file:
@@ -239,7 +239,7 @@ After=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-WorkingDirectory=/opt/tailscale-manager
+WorkingDirectory=/opt/tailscale-automation
 ExecStart=/usr/bin/docker compose up -d
 ExecStop=/usr/bin/docker compose down
 TimeoutStartSec=0
@@ -254,11 +254,11 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 
 # Enable service
-sudo systemctl enable tailscale-manager.service
+sudo systemctl enable tailscale-automation.service
 
 # Test service
-sudo systemctl start tailscale-manager.service
-sudo systemctl status tailscale-manager.service
+sudo systemctl start tailscale-automation.service
+sudo systemctl status tailscale-automation.service
 ```
 
 ## BƯỚC 7: MONITORING VÀ BẢO TRÌ
@@ -266,7 +266,7 @@ sudo systemctl status tailscale-manager.service
 ### 7.1 Script kiểm tra hệ thống
 ```bash
 # Tạo script check health
-cat > /opt/tailscale-manager/healthcheck.sh << 'EOF'
+cat > /opt/tailscale-automation/healthcheck.sh << 'EOF'
 #!/bin/bash
 echo "=== ATT Tailscale Manager Health Check ==="
 echo "Thời gian: $(date)"
@@ -283,28 +283,28 @@ echo -e "\n3. Database connection:"
 docker compose exec -T db psql -U postgres -d tailscale_mgr -c "SELECT 1;" >/dev/null && echo " - DB: OK" || echo " - DB: FAILED"
 
 echo -e "\n4. Disk usage:"
-df -h /var/lib/docker/volumes/tailscale-manager_dbdata/
+df -h /var/lib/docker/volumes/tailscale-automation_dbdata/
 
 echo -e "\n=== End Health Check ==="
 EOF
 
-chmod +x /opt/tailscale-manager/healthcheck.sh
+chmod +x /opt/tailscale-automation/healthcheck.sh
 ```
 
 ### 7.2 Crontab để kiểm tra định kỳ
 ```bash
 # Thêm vào crontab
-(crontab -l; echo "*/5 * * * * /opt/tailscale-manager/healthcheck.sh >> /var/log/tailscale-manager-health.log 2>&1") | crontab -
+(crontab -l; echo "*/5 * * * * /opt/tailscale-automation/healthcheck.sh >> /var/log/tailscale-automation-health.log 2>&1") | crontab -
 
 # Kiểm tra logs
-tail -f /var/log/tailscale-manager-health.log
+tail -f /var/log/tailscale-automation-health.log
 ```
 
 ## THÔNG TIN BẢO MẬT
 
 ### Các file quan trọng cần bảo vệ:
-- `/opt/tailscale-manager/server/.env` - Chứa API keys và secrets
-- Database volume: `tailscale-manager_dbdata`
+- `/opt/tailscale-automation/server/.env` - Chứa API keys và secrets
+- Database volume: `tailscale-automation_dbdata`
 
 ### Backup định kỳ:
 ```bash
@@ -312,13 +312,13 @@ tail -f /var/log/tailscale-manager-health.log
 docker compose exec db pg_dump -U postgres tailscale_mgr > backup_$(date +%Y%m%d).sql
 
 # Backup cấu hình
-cp /opt/tailscale-manager/server/.env /opt/tailscale-manager/server/.env.backup.$(date +%Y%m%d)
+cp /opt/tailscale-automation/server/.env /opt/tailscale-automation/server/.env.backup.$(date +%Y%m%d)
 ```
 
 ## TÓM TẮT LỆNH KHỞI ĐỘNG NHANH
 
 ```bash
-cd /opt/tailscale-manager
+cd /opt/tailscale-automation
 docker compose down
 docker compose up -d db
 sleep 30

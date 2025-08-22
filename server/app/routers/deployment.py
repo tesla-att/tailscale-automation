@@ -30,6 +30,11 @@ class BulkDeploymentRequest(BaseModel):
 # In-memory storage - replace with database
 deployments_db = []
 
+@router.get("/")
+async def get_deployments():
+    """Get all deployments"""
+    return deployments_db
+
 @router.get("/discover-devices")
 async def discover_windows_devices():
     """Discover Windows devices on the network"""

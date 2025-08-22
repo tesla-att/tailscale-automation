@@ -4,7 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.orm import Session
 from .config import settings
 from .db import SessionLocal
-from .routers import devices, users, authkeys, portforwards, analytics, deployment
+from .routers import devices, users, authkeys, portforwards, analytics, deployment, alerts
 from .services.rotate import rotate_if_necessary
 from .websockets import notification_manager, websocket_endpoint
 import json
@@ -30,11 +30,12 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(devices.router, prefix="/api/devices", tags=["devices"])
-app.include_router(authkeys.router, prefix="/api/authkeys", tags=["authkeys"])
+app.include_router(authkeys.router, prefix="/api/keys", tags=["authkeys"])
 # app.include_router(authkeys.agent, prefix="/api/authkeys/agent", tags=["authkeys-agent"]) # TODO: remove this - REMOVED: agent router doesn't exist
 app.include_router(portforwards.router, prefix="/api/port-forwards", tags=["port-forwards"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(deployment.router, prefix="/api/deployment", tags=["deployment"])
+app.include_router(alerts.router, prefix="/api/alerts", tags=["alerts"])
 
 
 scheduler = AsyncIOScheduler()

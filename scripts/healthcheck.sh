@@ -35,7 +35,7 @@ echo
 
 # Check if we're in the right directory
 if [ ! -f "docker-compose.yml" ]; then
-    print_error "Không tìm thấy docker-compose.yml. Chạy script từ /opt/tailscale-manager"
+    print_error "Không tìm thấy docker-compose.yml. Chạy script từ /opt/tailscale-automation"
     exit 1
 fi
 
@@ -113,8 +113,8 @@ fi
 # 4. Disk Usage
 echo
 print_header "4. SỬ DỤNG DISK"
-if [ -d "/var/lib/docker/volumes/tailscale-manager_dbdata" ]; then
-    db_volume_size=$(du -sh /var/lib/docker/volumes/tailscale-manager_dbdata 2>/dev/null | cut -f1)
+if [ -d "/var/lib/docker/volumes/tailscale-automation_dbdata" ]; then
+    db_volume_size=$(du -sh /var/lib/docker/volumes/tailscale-automation_dbdata 2>/dev/null | cut -f1)
     print_status "Database volume: $db_volume_size"
 else
     print_warning "Database volume: Không tìm thấy"
@@ -185,10 +185,10 @@ echo
 print_header "8. KIỂM TRA NETWORK"
 
 # Check if docker network exists
-if docker network inspect tailscale-manager_default > /dev/null 2>&1; then
+if docker network inspect tailscale-automation_default > /dev/null 2>&1; then
     print_status "Docker network: OK"
 else
-    print_warning "Docker network: Không tìm thấy network tailscale-manager_default"
+    print_warning "Docker network: Không tìm thấy network tailscale-automation_default"
 fi
 
 # Check port availability

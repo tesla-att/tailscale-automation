@@ -14,7 +14,7 @@ A TAILSCALE management system with web interface for creating, managing, and aut
 ## Project Structure
 
 ```
-tailscale-manager/
+tailscale-automation/
 ├── server/          # FastAPI backend
 ├── web-admin/       # React frontend  
 ├── docker-compose.yml
@@ -127,7 +127,7 @@ The system automatically checks and rotates auth keys that are about to expire:
 
 ### Sử dụng script tự động:
 ```bash
-cd /opt/tailscale-manager
+cd /opt/tailscale-automation
 ./start-system.sh
 ```
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # backup-system.sh - Comprehensive backup solution
 
-BACKUP_BASE="/opt/tailscale-manager/backups"
+BACKUP_BASE="/opt/tailscale-automation/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 RETENTION_DAYS=30
 
@@ -31,7 +31,7 @@ cp -r server/alembic "$BACKUP_BASE/config/alembic_$DATE"
 
 # 3. Application code backup
 echo "Backing up application code..."
-git archive --format=tar.gz --prefix=tailscale-manager-$DATE/ HEAD > "$BACKUP_BASE/code/code_$DATE.tar.gz"
+git archive --format=tar.gz --prefix=tailscale-automation-$DATE/ HEAD > "$BACKUP_BASE/code/code_$DATE.tar.gz"
 
 # 4. Logs backup
 echo "Backing up logs..."
@@ -47,7 +47,7 @@ cat > "$BACKUP_BASE/system_state_$DATE.json" << EOF
   "git_commit": "$(git rev-parse HEAD)",
   "git_branch": "$(git branch --show-current)",
   "system_uptime": "$(uptime)",
-  "disk_usage": "$(df -h /opt/tailscale-manager)",
+  "disk_usage": "$(df -h /opt/tailscale-automation)",
   "container_status": $(docker compose ps --format json)
 }
 EOF
@@ -62,7 +62,7 @@ find $BACKUP_BASE -name "*.txt" -mtime +$RETENTION_DAYS -delete
 # 7. Backup to remote storage (S3/Minio)
 if [ ! -z "$AWS_S3_BUCKET" ]; then
     echo "Uploading to S3..."
-    aws s3 sync $BACKUP_BASE s3://$AWS_S3_BUCKET/tailscale-manager-backups/ --delete
+    aws s3 sync $BACKUP_BASE s3://$AWS_S3_BUCKET/tailscale-automation-backups/ --delete
 fi
 
 # 8. Generate backup report

@@ -1,4 +1,4 @@
-#!/root/tailscale-automation/.venv/bin/python3
+#!/opt/tailscale-automation/.venv/bin/python3
 import sys
 from dotenv.__main__ import cli
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 
 set -e
 
-BACKUP_DIR="/opt/tailscale-manager/backups"
+BACKUP_DIR="/opt/tailscale-automation/backups"
 RECOVERY_DATE="$1"
 
 if [ -z "$RECOVERY_DATE" ]; then
